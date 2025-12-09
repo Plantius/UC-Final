@@ -11,20 +11,13 @@ from diffusionsat.controlnet_3d import ControlNetModel3D
 def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
     parser.add_argument(
-        "--mode",
-        type=str,
-        choices=["inpaint", "cresi", "improved_cresi"],
-        default="improved_cresi",
-        help="Choose the operation mode: inpaint, cresi, or improved_cresi",
-    )
-    parser.add_argument(
         "--unet-model-path",
         type=str,
         default="finetune_sd21_sn-satlas-fmow_snr5_md7norm_bs64/",
         help="Path to the UNet model checkpoint",
     )
     parser.add_argument(
-        "ctrlnet-model-path",
+        "--ctrlnet-model-path",
         type=str,
         default="controlnet_sd21_md7norm_fmow_condres256",
         help="Path to the ControlNet model checkpoint",
