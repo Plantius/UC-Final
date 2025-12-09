@@ -8,6 +8,7 @@ from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatControlNetPipeline, DiffusionSatPipeline, SatUNet
 from diffusionsat.pipeline import StableDiffusionPipeline
 from diffusionsat.controlnet import ControlNetModel
+from torchvision import transforms
 
 def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
@@ -103,10 +104,9 @@ class InpaintCresi:
         # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
         metadata = metadata_normalize([76.5712666476, 28.6965307997, 0.929417550564, 0.0765712666476, 2015, 2, 27]).tolist()
 
-        
         image = pipe(
             caption,
-            image=init_image,
+            image=[init_image],
             # mask=mask_image,
             metadata=metadata,
             num_inference_steps=self.num_inference_steps,
