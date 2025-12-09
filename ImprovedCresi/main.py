@@ -97,7 +97,11 @@ class InpaintCresi:
         output = pipe(
             prompt=caption,
             image=init_image,
-            mask_image=mask_image
+            mask_image=mask_image,
+            num_inference_steps=self.num_inference_steps,
+            guidance_scale=self.guidance_scale,
+            height=self.img_size_y,
+            width=self.img_size_x,
         ).images[0]
 
         output.save("inpainted_image.png")
