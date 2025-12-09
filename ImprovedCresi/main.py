@@ -57,10 +57,10 @@ class InpaintCresi:
         image = pipe(
             caption,
             metadata=metadata,
-            num_inference_steps=2,
+            num_inference_steps=10,
             guidance_scale=7.5,
-            height=128,
-            width=128,
+            height=512,
+            width=512,
         ).images[0]
 
         image.save("inpainted_image.png")
