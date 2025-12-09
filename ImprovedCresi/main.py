@@ -88,7 +88,7 @@ class InpaintCresi:
 
 
 def main(args: argparse.Namespace):
-    processor = InpaintCresi(args.unet_model_path)
+    processor = InpaintCresi(args.unet_model_path, args.img_size_x, args.img_size_y)
     if args.mode == "inpaint":
         output = processor.inpaint(args.data)
     elif args.mode == "cresi":
