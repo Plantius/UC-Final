@@ -102,7 +102,7 @@ class InpaintCresi:
 
         image = pipe(
             caption,
-            image=[init_image],
+            image=init_image,
             # mask=mask_image,
             metadata=metadata,
             num_inference_steps=self.num_inference_steps,
