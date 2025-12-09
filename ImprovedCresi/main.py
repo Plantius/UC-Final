@@ -7,7 +7,7 @@ from diffusionsat.pipeline_controlnet import StableDiffusionControlNetPipeline
 from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatControlNetPipeline, DiffusionSatPipeline, SatUNet
 from diffusionsat.pipeline import StableDiffusionPipeline
-from diffusionsat.controlnet_3d import ControlNetModel3D
+from diffusionsat.controlnet import ControlNetModel
 
 def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
@@ -74,7 +74,7 @@ class InpaintCresi:
             self.unet_checkpoint_path + "checkpoint-150000",
             subfolder="unet",
         )
-        controlnet = ControlNetModel3D.from_pretrained(
+        controlnet = ControlNetModel.from_pretrained(
             self.ctrlnet_checkpoint_path + "checkpoint-50000",
             subfolder="controlnet",
             torch_dtype=torch.float16
