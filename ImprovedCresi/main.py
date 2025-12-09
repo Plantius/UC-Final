@@ -87,15 +87,15 @@ class InpaintCresi:
             (self.img_size_x, self.img_size_y)
         )
         
-        caption = "a cloudy satellite image of a city with buildings and roads in Paris, France"
+        caption = "a satellite image of a city with buildings and roads inpainted realistically"
         # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
         metadata = metadata_normalize([76.5712666476, 28.6965307997, 0.929417550564, 0.0765712666476, 2015, 2, 27]).tolist()
 
         
         image = pipe(
             caption,
-            image=init_image,
-            mask_image=mask_image,
+            init_image=init_image,
+            mask=mask_image,
             metadata=metadata,
             num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
