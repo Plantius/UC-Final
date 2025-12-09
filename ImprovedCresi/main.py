@@ -113,7 +113,7 @@ def main(args: argparse.Namespace):
 
 
 if __name__ == "__main__":
-    os.environ["HF_HOME"] = "~/.cache/"
+    os.environ["HF_HOME"] = "/local/s3322637/.cache/"
 
     args = argparser()
     main(args)
