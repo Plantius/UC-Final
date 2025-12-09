@@ -5,7 +5,7 @@ import torch
 from PIL import Image
 from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatPipeline, SatUNet
-from diffusionsat.pipeline import StableDiffusionPipeline
+from src.diffusers import StableDiffusionInpaintPipeline
 
 
 def argparser():
@@ -65,13 +65,13 @@ class InpaintCresi:
         self.num_inference_steps = 10
         self.guidance_scale = 7.5
 
-    def SatUNet_pipeline(self) -> StableDiffusionPipeline:
+    def SatUNet_pipeline(self) -> StableDiffusionInpaintPipeline:
         unet = SatUNet.from_pretrained(
-            self.checkpoint_path + "checkpoint-100000",
+            self.checkpoint_path + "checkpoint-150000",
             subfolder="unet",
             torch_dtype=torch.float16,
         )
-        pipe: StableDiffusionPipeline = DiffusionSatPipeline.from_pretrained(
+        pipe: StableDiffusionInpaintPipeline = StableDiffusionInpaintPipeline.from_pretrained(
             self.checkpoint_path, unet=unet, torch_dtype=torch.float16
         )
         pipe = pipe.to(self.device)
