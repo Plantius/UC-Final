@@ -1,9 +1,8 @@
 import argparse
 import os
-from tkinter import Image
 
 import torch
-
+from PIL import Image
 from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatPipeline, SatUNet
 from diffusionsat.pipeline import StableDiffusionPipeline
