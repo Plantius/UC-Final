@@ -90,8 +90,8 @@ class ControlNetConditioningEmbedding(nn.Module):
         return embedding
 
 
-class ControlNetModel3D(ModelMixin, ConfigMixin):
     _supports_gradient_checkpointing = True
+class ControlNetModel3D(ModelMixin, ConfigMixin):
 
     @register_to_config
     def __init__(

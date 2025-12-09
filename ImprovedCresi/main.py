@@ -3,6 +3,7 @@ import os
 
 import torch
 from PIL import Image
+from diffusionsat.pipeline_controlnet import StableDiffusionControlNetPipeline
 from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatControlNetPipeline, DiffusionSatPipeline, SatUNet
 from diffusionsat.pipeline import StableDiffusionPipeline
@@ -68,19 +69,17 @@ class InpaintCresi:
         self.num_inference_steps = 10
         self.guidance_scale = 7.5
 
-    def SatUNet_pipeline(self) -> StableDiffusionPipeline:
+    def SatUNet_pipeline(self) -> StableDiffusionControlNetPipeline:
         unet = SatUNet.from_pretrained(
             self.unet_checkpoint_path + "checkpoint-150000",
             subfolder="unet",
         )
-        # controlnet = ControlNetModel3D.from_pretrained(
-        #     self.ctrlnet_checkpoint_path + "checkpoint-50000",
-        #     subfolder="controlnet",
-        #     torch_dtype=torch.float16
-        # )
-        controlnet = ControlNetModel3D.from_unet(
-            unet, )
-        pipe = DiffusionSatControlNetPipeline.from_pretrained(
+        controlnet = ControlNetModel3D.from_pretrained(
+            self.ctrlnet_checkpoint_path + "checkpoint-50000",
+            subfolder="controlnet",
+            torch_dtype=torch.float16
+        )
+        pipe: StableDiffusionControlNetPipeline = DiffusionSatControlNetPipeline.from_pretrained(
             self.unet_checkpoint_path, unet=unet, controlnet=controlnet
         )
         print(type(pipe))
@@ -93,6 +92,7 @@ class InpaintCresi:
         init_image = Image.open(image_path).convert("RGB").resize(
             (self.img_size_x, self.img_size_y)
         )
+        print()
         # mask_image = Image.open(mask_path).convert("L").resize(
         #     (self.img_size_x, self.img_size_y)
         # )
