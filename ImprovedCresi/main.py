@@ -87,8 +87,8 @@ class InpaintCresi:
     def inpaint(self, image_path: str, mask_path: str):
         pipe = self.SatUNet_pipeline()
 
-        init_image = Image.open(image_path).convert("RGB")
-        mask_image = Image.open(mask_path).convert("L")
+        init_image = Image.open(image_path).convert("RGB").resize((self.img_size_x, self.img_size_y))
+        mask_image = Image.open(mask_path).convert("L").resize((self.img_size_x, self.img_size_y))
         
         caption = "a satellite image of a city with buildings and roads inpainted realistically"
         # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
