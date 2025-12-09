@@ -42,7 +42,7 @@ def argparser():
         help="Height of the output image",
     )
     parser.add_argument(
-        "num-inference-steps",
+        "--num-inference-steps",
         type=int,
         default=50,
         help="Number of inference steps for the diffusion process",
