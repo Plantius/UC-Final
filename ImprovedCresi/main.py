@@ -4,9 +4,9 @@ import os
 import torch
 from PIL import Image
 from diffusionsat.data_util import metadata_normalize
-from diffusionsat import DiffusionSatPipeline, SatUNet
-from src.diffusers import StableDiffusionInpaintPipeline
-
+from diffusionsat import DiffusionSatControlNetPipeline, DiffusionSatPipeline, SatUNet
+from diffusionsat.pipeline import StableDiffusionPipeline
+from diffusionsat.controlnet_3d import ControlNetModel3D
 
 def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
@@ -22,6 +22,12 @@ def argparser():
         type=str,
         default="finetune_sd21_sn-satlas-fmow_snr5_md7norm_bs64/",
         help="Path to the UNet model checkpoint",
+    )
+    parser.add_argument(
+        "ctrlnet-model-path",
+        type=str,
+        default="controlnet_sd21_md7norm_fmow_condres256",
+        help="Path to the ControlNet model checkpoint",
     )
     parser.add_argument(
         "--data",
@@ -57,35 +63,49 @@ def argparser():
 
 
 class InpaintCresi:
-    def __init__(self, checkpoint_path: str, img_size_x: int, img_size_y: int) -> None:
-        self.checkpoint_path = checkpoint_path
+    def __init__(self, unet_checkpoint_path: str, ctrlnet_checkpoint_path: str, img_size_x: int, img_size_y: int) -> None:
+        self.unet_checkpoint_path = unet_checkpoint_path
+        self.ctrlnet_checkpoint_path = ctrlnet_checkpoint_path
+        
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"Using device: {self.device}")
+        
         self.img_size_x = img_size_x
         self.img_size_y = img_size_y    
         self.num_inference_steps = 10
         self.guidance_scale = 7.5
 
-    def SatUNet_pipeline(self) -> StableDiffusionInpaintPipeline:
+    def SatUNet_pipeline(self) -> StableDiffusionPipeline:
         unet = SatUNet.from_pretrained(
-            self.checkpoint_path + "checkpoint-150000",
+            self.unet_checkpoint_path + "checkpoint-150000",
             subfolder="unet",
             torch_dtype=torch.float16,
         )
-        pipe: StableDiffusionInpaintPipeline = StableDiffusionInpaintPipeline.from_pretrained(
-            self.checkpoint_path, unet=unet, torch_dtype=torch.float16
+        # controlnet = ControlNetModel3D.from_pretrained(
+        #     self.ctrlnet_checkpoint_path + "checkpoint-50000",
+        #     subfolder="controlnet",
+        #     num_metadata=7,
+        #     torch_dtype=torch.float16
+        # )
+        controlnet = ControlNetModel3D.from_unet(
+            unet,
+            num_metadata=7)
+        pipe = DiffusionSatControlNetPipeline.from_pretrained(
+            self.unet_checkpoint_path, unet=unet, controlnet=controlnet, torch_dtype=torch.float16
         )
+        print(type(pipe))
         pipe = pipe.to(self.device)
         return pipe
 
     def inpaint(self, image_path: str, mask_path: str):
         pipe = self.SatUNet_pipeline()
 
-        image = Image.open(image_path).convert("RGB").resize(
+        init_image = Image.open(image_path).convert("RGB").resize(
             (self.img_size_x, self.img_size_y)
         )
-        mask_image = Image.open(mask_path).convert("L").resize(
-            (self.img_size_x, self.img_size_y)
-        )
+        # mask_image = Image.open(mask_path).convert("L").resize(
+        #     (self.img_size_x, self.img_size_y)
+        # )
         
         caption = "a satellite image of a city with buildings and roads inpainted realistically"
         # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
@@ -93,14 +113,12 @@ class InpaintCresi:
 
         
         image = pipe(
-            prompt=caption,
-            image=image,
-            mask_image=mask_image,
-            # metadata=metadata,
+            caption,
+            image=init_image,
+            # mask=mask_image,
+            metadata=metadata,
             num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
-            height=self.img_size_y,
-            width=self.img_size_x,
         ).images[0]
 
         image.save("inpainted_image.png")
@@ -110,7 +128,7 @@ class InpaintCresi:
 
 
 def main(args: argparse.Namespace):
-    processor = InpaintCresi(args.unet_model_path, args.img_size_x, args.img_size_y)
+    processor = InpaintCresi(args.unet_model_path, args.ctrlnet_model_path, args.img_size_x, args.img_size_y)
     output = processor.inpaint(args.image, args.mask)
     output = processor.cresi(output)
 
