@@ -3,6 +3,7 @@ import os
 
 import torch
 
+from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatPipeline, SatUNet
 from diffusionsat.pipeline import StableDiffusionPipeline
 
@@ -28,13 +29,29 @@ def argparser():
         default=None,
         help="Input data for processing",
     )
+    parser.add_argument(
+        "--img-size-x",
+        type=int,
+        default=512,
+        help="Width of the output image",
+    )
+    parser.add_argument(
+        "--img-size-y",
+        type=int,
+        default=512,
+        help="Height of the output image",
+    )
     return parser.parse_args()
 
 
 class InpaintCresi:
-    def __init__(self, checkpoint_path: str) -> None:
+    def __init__(self, checkpoint_path: str, img_size_x: int, img_size_y: int) -> None:
         self.checkpoint_path = checkpoint_path
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.img_size_x = img_size_x
+        self.img_size_y = img_size_y    
+        self.num_inference_steps = 10
+        self.guidance_scale = 7.5
 
     def SatUNet_pipeline(self) -> StableDiffusionPipeline:
         unet = SatUNet.from_pretrained(
@@ -51,16 +68,17 @@ class InpaintCresi:
     def inpaint(self, data):
         pipe = self.SatUNet_pipeline()
 
-        caption = "a satellite image of a amusement park in Australia"
-        metadata = [925.8798, 345.2111, 411.4541, 0.0000, 308.3333, 166.6667, 354.8387]
+        caption = "a cloudy satellite image of a city with buildings and roads in Paris, France"
+        # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
+        metadata = metadata_normalize([76.5712666476, 28.6965307997, 0.929417550564, 0.0765712666476, 2015, 2, 27]).tolist()
 
         image = pipe(
             caption,
             metadata=metadata,
-            num_inference_steps=10,
-            guidance_scale=7.5,
-            height=512,
-            width=512,
+            num_inference_steps=self.num_inference_steps,
+            guidance_scale=self.guidance_scale,
+            height=self.img_size_y,
+            width=self.img_size_x,
         ).images[0]
 
         image.save("inpainted_image.png")
