@@ -8,7 +8,7 @@ from diffusionsat.data_util import metadata_normalize
 from diffusionsat import DiffusionSatControlNetPipeline, DiffusionSatPipeline, SatUNet
 from diffusionsat.pipeline import StableDiffusionPipeline
 from diffusionsat.controlnet import ControlNetModel
-
+from src.diffusers.pipelines import StableDiffusionInpaintPipeline
 def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
     parser.add_argument(
@@ -70,46 +70,37 @@ class InpaintCresi:
         self.guidance_scale = 7.5
 
     def SatUNet_pipeline(self) -> StableDiffusionControlNetPipeline:
-        unet = SatUNet.from_pretrained(
-            self.unet_checkpoint_path + "checkpoint-150000",
-            subfolder="unet",
-            num_metadata=7,
-        )
-        controlnet = ControlNetModel.from_pretrained(
-            self.ctrlnet_checkpoint_path,
-            subfolder="controlnet",
-            num_metadata=7,
-            torch_dtype=torch.float16
-        )
-        pipe: StableDiffusionControlNetPipeline = DiffusionSatControlNetPipeline.from_pretrained(
-            self.unet_checkpoint_path, unet=unet, controlnet=controlnet, torch_dtype=torch.float16
-        )
-        print(type(pipe))
-        pipe = pipe.to(self.device)
+        # unet = SatUNet.from_pretrained(
+        #     self.unet_checkpoint_path + "checkpoint-150000",
+        #     subfolder="unet",
+        #     num_metadata=7,
+        # )
+        # controlnet = ControlNetModel.from_pretrained(
+        #     self.ctrlnet_checkpoint_path,
+        #     subfolder="controlnet",
+        #     num_metadata=7,
+        #     torch_dtype=torch.float16
+        # )
+        pipe = StableDiffusionInpaintPipeline.from_pretrained("runwayml/stable-diffusion-inpainting").to(self.device)
         return pipe
 
     def inpaint(self, image_path: str, mask_path: str):
         pipe = self.SatUNet_pipeline()
 
         init_image = Image.open(image_path).convert("RGB")
-        # mask_image = Image.open(mask_path).convert("L").resize(
-        #     (self.img_size_x, self.img_size_y)
-        # )
+        mask_image = Image.open(mask_path).convert("L")
         
         caption = "a satellite image of a city with buildings and roads inpainted realistically"
         # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
-        metadata = metadata_normalize([76.5712666476, 28.6965307997, 0.929417550564, 0.0765712666476, 2015, 2, 27]).tolist()
+        # metadata = metadata_normalize([76.5712666476, 28.6965307997, 0.929417550564, 0.0765712666476, 2015, 2, 27]).tolist()
 
-        image = pipe(
-            caption,
+        output = pipe(
+            prompt=caption,
             image=init_image,
-            # mask=mask_image,
-            metadata=metadata,
-            num_inference_steps=self.num_inference_steps,
-            guidance_scale=self.guidance_scale,
+            mask_image=mask_image
         ).images[0]
 
-        image.save("inpainted_image.png")
+        output.save("inpainted_image.png")
 
     def cresi(self, data):
         pass
