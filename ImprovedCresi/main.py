@@ -55,12 +55,12 @@ class InpaintCresi:
         self.guidance_scale = 7.5
 
         self.feature_extractor = SegformerFeatureExtractor.from_pretrained(
-            "Burdenthrive/cloud-detection-segformer-mit_b4-RGB",
+            "universe-cloud/cloud-segformer-rgb",
             cache_dir="/local/s3322637/.cache/",
         )
         self.segformer_model = (
             SegformerForSemanticSegmentation.from_pretrained(
-                "Burdenthrive/cloud-detection-segformer-mit_b4-RGB",
+                "universe-cloud/cloud-segformer-rgb",
                 cache_dir="/local/s3322637/.cache/",
             )
             .to(self.device)
@@ -72,7 +72,7 @@ class InpaintCresi:
         ).to(self.device)
 
         print(type(self.inpaint_pipe))
-        
+
     def load_s3_image(self, s3_path: str) -> Image.Image:
         with self.fs.open(s3_path, "rb") as f:
             img = Image.open(f).convert("RGB")
