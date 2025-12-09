@@ -95,7 +95,7 @@ class InpaintCresi:
         image = pipe(
             prompt=caption,
             image=image,
-            mask=mask_image,
+            mask_image=mask_image,
             # metadata=metadata,
             num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
