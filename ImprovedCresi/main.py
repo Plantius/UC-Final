@@ -76,7 +76,7 @@ class InpaintCresi:
             num_metadata=7,
         )
         controlnet = ControlNetModel.from_pretrained(
-            self.ctrlnet_checkpoint_path + "checkpoint-50000",
+            self.ctrlnet_checkpoint_path,
             subfolder="controlnet",
             num_metadata=7,
             torch_dtype=torch.float16
