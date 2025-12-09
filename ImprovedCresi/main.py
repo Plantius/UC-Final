@@ -114,11 +114,6 @@ class InpaintCresi:
 
 def main(args: argparse.Namespace):
     fs = s3fs.S3FileSystem(anon=True)
-    print(
-        fs.ls(
-            "s3://spacenet-dataset/spacenet/SN5_roads/test_public/AOI_8_Mumbai/PS-RGB/"
-        )
-    )
     processor = InpaintCresi(
         fs,
         args.img_size_x,
@@ -127,6 +122,8 @@ def main(args: argparse.Namespace):
     )
     img = processor.load_s3_image(args.image_s3)
     mask = processor.detect_cloud_mask(img)
+    img.save("original.png")
+    mask.save("mask.png")
 
     prompt = "A satellite image of a city with buildings and roads, clouds removed realistically"
     output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
