@@ -73,14 +73,16 @@ class InpaintCresi:
         unet = SatUNet.from_pretrained(
             self.unet_checkpoint_path + "checkpoint-150000",
             subfolder="unet",
+            num_metadata=7,
         )
         controlnet = ControlNetModel.from_pretrained(
             self.ctrlnet_checkpoint_path + "checkpoint-50000",
             subfolder="controlnet",
+            num_metadata=7,
             torch_dtype=torch.float16
         )
         pipe: StableDiffusionControlNetPipeline = DiffusionSatControlNetPipeline.from_pretrained(
-            self.unet_checkpoint_path, unet=unet, controlnet=controlnet
+            self.unet_checkpoint_path, unet=unet, controlnet=controlnet, torch_dtype=torch.float16
         )
         print(type(pipe))
         pipe = pipe.to(self.device)
