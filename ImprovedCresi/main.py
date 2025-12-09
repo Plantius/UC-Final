@@ -42,6 +42,12 @@ def argparser():
         help="Height of the output image",
     )
     parser.add_argument(
+        "num-inference-steps",
+        type=int,
+        default=50,
+        help="Number of inference steps for the diffusion process",
+    )
+    parser.add_argument(
         "--image",
         type=str,
         default="example_data/satellite_image.png",
@@ -57,7 +63,7 @@ def argparser():
 
 
 class InpaintCresi:
-    def __init__(self, unet_checkpoint_path: str, ctrlnet_checkpoint_path: str, img_size_x: int, img_size_y: int) -> None:
+    def __init__(self, unet_checkpoint_path: str, ctrlnet_checkpoint_path: str, img_size_x: int, img_size_y: int, num_inference_steps: int) -> None:
         self.unet_checkpoint_path = unet_checkpoint_path
         self.ctrlnet_checkpoint_path = ctrlnet_checkpoint_path
         
@@ -66,7 +72,7 @@ class InpaintCresi:
         
         self.img_size_x = img_size_x
         self.img_size_y = img_size_y    
-        self.num_inference_steps = 10
+        self.num_inference_steps = num_inference_steps
         self.guidance_scale = 7.5
 
     def SatUNet_pipeline(self) -> StableDiffusionControlNetPipeline:
@@ -111,7 +117,7 @@ class InpaintCresi:
 
 
 def main(args: argparse.Namespace):
-    processor = InpaintCresi(args.unet_model_path, args.ctrlnet_model_path, args.img_size_x, args.img_size_y)
+    processor = InpaintCresi(args.unet_model_path, args.ctrlnet_model_path, args.img_size_x, args.img_size_y, args.num_inference_steps)
     output = processor.inpaint(args.image, args.mask)
     output = processor.cresi(output)
 
