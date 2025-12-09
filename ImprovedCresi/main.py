@@ -17,16 +17,23 @@ def argparser():
         help="Choose the operation mode: inpaint, cresi, or improved_cresi",
     )
     parser.add_argument(
+        "--unet-model-path",
+        type=str,
+        default="finetune_sd21_sn-satlas-fmow_snr5_md7norm_bs64/",
+        help="Path to the UNet model checkpoint",
+    )
+    parser.add_argument(
         "--data",
         type=str,
+        default=None,
         help="Input data for processing",
     )
     return parser.parse_args()
 
 
 class InpaintCresi:
-    def __init__(self) -> None:
-        self.checkpoint_path = "finetune_sd21_sn-satlas-fmow_snr5_md7norm_bs64/"
+    def __init__(self, checkpoint_path: str) -> None:
+        self.checkpoint_path = checkpoint_path
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def SatUNet_pipeline(self) -> StableDiffusionPipeline:
@@ -63,7 +70,7 @@ class InpaintCresi:
 
 
 def main(args: argparse.Namespace):
-    processor = InpaintCresi()
+    processor = InpaintCresi(args.unet_model_path)
     if args.mode == "inpaint":
         output = processor.inpaint(args.data)
     elif args.mode == "cresi":
