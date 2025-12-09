@@ -81,7 +81,7 @@ class InpaintCresi:
         #     num_metadata=7,
         #     torch_dtype=torch.float16
         # )
-        pipe = StableDiffusionInpaintPipeline.from_pretrained("stable-diffusion-v1-5/stable-diffusion-inpainting", cache_dir="/local/s3322637/.cache/").to(self.device)
+        pipe = StableDiffusionInpaintPipeline.from_pretrained("Jiabooo/diffusionsat", cache_dir="/local/s3322637/.cache/").to(self.device)
         return pipe
 
     def inpaint(self, image_path: str, mask_path: str):
