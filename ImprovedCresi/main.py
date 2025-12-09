@@ -80,7 +80,7 @@ class InpaintCresi:
     def inpaint(self, image_path: str, mask_path: str):
         pipe = self.SatUNet_pipeline()
 
-        init_image = Image.open(image_path).convert("RGB").resize(
+        image = Image.open(image_path).convert("RGB").resize(
             (self.img_size_x, self.img_size_y)
         )
         mask_image = Image.open(mask_path).convert("L").resize(
@@ -93,12 +93,14 @@ class InpaintCresi:
 
         
         image = pipe(
-            caption,
-            init_image=init_image,
+            prompt=caption,
+            image=image,
             mask=mask_image,
-            metadata=metadata,
+            # metadata=metadata,
             num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
+            height=self.img_size_y,
+            width=self.img_size_x,
         ).images[0]
 
         image.save("inpainted_image.png")
