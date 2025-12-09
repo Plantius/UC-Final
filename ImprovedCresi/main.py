@@ -81,8 +81,7 @@ class InpaintCresi:
         #     torch_dtype=torch.float16
         # )
         controlnet = ControlNetModel3D.from_unet(
-            unet,
-            num_metadata=7)
+            unet)
         pipe = DiffusionSatControlNetPipeline.from_pretrained(
             self.unet_checkpoint_path, unet=unet, controlnet=controlnet, torch_dtype=torch.float16
         )
