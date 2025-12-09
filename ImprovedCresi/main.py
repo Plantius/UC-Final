@@ -91,10 +91,7 @@ class InpaintCresi:
     def inpaint(self, image_path: str, mask_path: str):
         pipe = self.SatUNet_pipeline()
 
-        init_image = Image.open(image_path).convert("RGB").resize(
-            (self.img_size_x, self.img_size_y)
-        )
-        print()
+        init_image = Image.open(image_path).convert("RGB")
         # mask_image = Image.open(mask_path).convert("L").resize(
         #     (self.img_size_x, self.img_size_y)
         # )
