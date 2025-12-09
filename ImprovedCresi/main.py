@@ -1,5 +1,6 @@
 import argparse
 import os
+from tkinter import Image
 
 import torch
 
@@ -41,6 +42,18 @@ def argparser():
         default=512,
         help="Height of the output image",
     )
+    parser.add_argument(
+        "--image",
+        type=str,
+        default="example_data/satellite_image.png",
+        help="Path to the input image for inpainting",
+    )
+    parser.add_argument(
+        "--mask",
+        type=str,
+        default="example_data/mask.png",
+        help="Path to the input mask for inpainting",
+    )
     return parser.parse_args()
 
 
@@ -65,20 +78,28 @@ class InpaintCresi:
         pipe = pipe.to(self.device)
         return pipe
 
-    def inpaint(self, data):
+    def inpaint(self, image_path: str, mask_path: str):
         pipe = self.SatUNet_pipeline()
 
+        init_image = Image.open(image_path).convert("RGB").resize(
+            (self.img_size_x, self.img_size_y)
+        )
+        mask_image = Image.open(mask_path).convert("L").resize(
+            (self.img_size_x, self.img_size_y)
+        )
+        
         caption = "a cloudy satellite image of a city with buildings and roads in Paris, France"
         # metadata: [longitude, latitude, gsd, cloud cover, year, month, day]
         metadata = metadata_normalize([76.5712666476, 28.6965307997, 0.929417550564, 0.0765712666476, 2015, 2, 27]).tolist()
 
+        
         image = pipe(
             caption,
+            image=init_image,
+            mask_image=mask_image,
             metadata=metadata,
             num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
-            height=self.img_size_y,
-            width=self.img_size_x,
         ).images[0]
 
         image.save("inpainted_image.png")
@@ -89,13 +110,8 @@ class InpaintCresi:
 
 def main(args: argparse.Namespace):
     processor = InpaintCresi(args.unet_model_path, args.img_size_x, args.img_size_y)
-    if args.mode == "inpaint":
-        output = processor.inpaint(args.data)
-    elif args.mode == "cresi":
-        output = processor.cresi(args.data)
-    elif args.mode == "improved_cresi":
-        output = processor.inpaint(args.data)
-        output = processor.cresi(output)
+    output = processor.inpaint(args.image, args.mask)
+    output = processor.cresi(output)
 
 
 if __name__ == "__main__":
