@@ -55,12 +55,12 @@ class InpaintCresi:
         self.guidance_scale = 7.5
 
         self.feature_extractor = SegformerFeatureExtractor.from_pretrained(
-            "universe-cloud/cloud-segformer-rgb",
+            "nvidia/mit-b4-clouds",
             cache_dir="/local/s3322637/.cache/",
         )
         self.segformer_model = (
             SegformerForSemanticSegmentation.from_pretrained(
-                "universe-cloud/cloud-segformer-rgb",
+                "nvidia/mit-b4-clouds",
                 cache_dir="/local/s3322637/.cache/",
             )
             .to(self.device)
