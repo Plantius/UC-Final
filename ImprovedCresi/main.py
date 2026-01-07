@@ -126,7 +126,7 @@ def main(args: argparse.Namespace):
     mask.save("mask.png")
 
     prompt = "A satellite image of a city with buildings and roads, clouds removed realistically"
-    output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
+    output = processor.inpaint(img, mask, prompt, "2inpainted_image.png")
     output = processor.cresi(output)
 
 
