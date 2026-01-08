@@ -48,7 +48,7 @@ def has_cloud(mask_tile, threshold=0.01):
     return cloud_fraction > threshold
 
 
-def tile_image_and_mask(image, mask, tile_size=256):
+def tile_image_and_mask(image, mask, tile_size=512):
     tiles = []
 
     w, h = image.size
