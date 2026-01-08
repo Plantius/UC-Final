@@ -38,21 +38,51 @@ def argparser():
     return parser.parse_args()
 
 
+def has_cloud(mask_tile, threshold=0.01):
+    mask_np = np.array(mask_tile)
+    cloud_fraction = mask_np.mean() / 255.0
+    return cloud_fraction > threshold
+
+
+def tile_image_and_mask(image, mask, tile_size=512):
+    tiles = []
+
+    w, h = image.size
+
+    for y in range(0, h, tile_size):
+        for x in range(0, w, tile_size):
+            box = (x, y, x + tile_size, y + tile_size)
+
+            if x + tile_size > w or y + tile_size > h:
+                continue
+
+            img_tile = image.crop(box)
+            mask_tile = mask.crop(box)
+
+            tiles.append((x, y, img_tile, mask_tile))
+
+    return tiles
+
+
 class InpaintCresi:
     def __init__(
         self,
         fs: s3fs.S3FileSystem,
+        img_size_x: int,
+        img_size_y: int,
         num_inference_steps: int,
-        username: str = "s3322637",
+        uername: str = "s3322637",
     ) -> None:
         self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
         self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
-        self.username = username
+        self.username = uername
 
         self.fs = fs
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
 
+        self.img_size_x = img_size_x
+        self.img_size_y = img_size_y
         self.num_inference_steps = num_inference_steps
         self.guidance_scale = 7.5
 
@@ -86,6 +116,7 @@ class InpaintCresi:
     def load_s3_image(self, s3_path: str) -> Image.Image:
         with self.fs.open(s3_path, "rb") as f:
             img = Image.open(f).convert("RGB")
+        # img = img.resize((self.img_size_x, self.img_size_y))
         return img
 
     def detect_cloud_mask(self, image: Image.Image) -> Image.Image:
@@ -105,18 +136,41 @@ class InpaintCresi:
         pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
         cloud_mask = ((pred_seg == 1) | (pred_seg == 4)).astype(np.uint8)
 
-        return Image.fromarray(cloud_mask)
+        return Image.fromarray(
+            cloud_mask
+        )  # .resize((self.img_size_x, self.img_size_y))
+
+    def inpaint_tile(self, img_tile, mask_tile, prompt):
+        return self.inpaint_pipe(
+            prompt=prompt,
+            image=img_tile,
+            mask_image=mask_tile,
+            num_inference_steps=self.num_inference_steps,
+            guidance_scale=self.guidance_scale,
+        ).images[0]
+
+    def inpaint_full_image(self, image, mask, prompt):
+        result = image.copy()
+
+        tiles = tile_image_and_mask(image, mask)
+
+        for x, y, img_tile, mask_tile in tiles:
+            if not has_cloud(mask_tile):
+                continue
+
+            inpainted_tile = self.inpaint_tile(img_tile, mask_tile, prompt)
+            result.paste(inpainted_tile, (x, y))
+
+        return result
 
     def inpaint(
         self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
     ):
-        result = self.inpaint_pipe(
-            prompt=prompt,
+        result = self.inpaint_full_image(
             image=image,
-            mask_image=mask,
-            num_inference_steps=self.num_inference_steps,
-            guidance_scale=self.guidance_scale,
-        ).images[0]
+            mask=mask,
+            prompt=prompt,
+        )
         result.save(output_path)
         print(f"Inpainted image saved to {output_path}")
 
@@ -128,6 +182,8 @@ def main(args: argparse.Namespace):
     fs = s3fs.S3FileSystem(anon=True)
     processor = InpaintCresi(
         fs,
+        args.img_size_x,
+        args.img_size_y,
         args.num_inference_steps,
     )
     img = processor.load_s3_image(args.image_s3)
