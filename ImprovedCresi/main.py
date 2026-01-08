@@ -144,11 +144,7 @@ class InpaintCresi:
             mode="bilinear",
             align_corners=False,
         )
-        print(logits)
-        print(upsampled_logits)
         pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
-        print(pred_seg)
-        print(np.unique(pred_seg))
         cloud_mask = ((pred_seg == 1) | (pred_seg == 4)).astype(np.uint8)
 
         return Image.fromarray(
@@ -209,8 +205,8 @@ def main(args: argparse.Namespace):
     else:
         raise ValueError("Either --image-local or --image-s3 must be provided.")
     mask = processor.detect_cloud_mask(img)
-    img.save("original.png")
-    mask.save("mask.png")
+    img.save("original.jpg")
+    mask.save("mask.jpg", mode="L")
     print("Original image and mask saved.")
 
     prompt = "A satellite image of a city with buildings and roads, clouds removed realistically"
