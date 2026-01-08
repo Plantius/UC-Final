@@ -32,8 +32,12 @@ def argparser():
     parser.add_argument(
         "--image-s3",
         type=str,
-        default="example_data/satellite_image.png",
-        help="Path to the input image for inpainting",
+        help="Path to the remote input image for inpainting",
+    )
+    parser.add_argument(
+        "--image-local",
+        type=str,
+        help="Path to the local input image for inpainting",
     )
     return parser.parse_args()
 
@@ -119,6 +123,14 @@ class InpaintCresi:
         # img = img.resize((self.img_size_x, self.img_size_y))
         return img
 
+    def load_image(self, file_path: str) -> Image.Image:
+        try:
+            img = Image.open(file_path).convert("RGB")
+        except Exception as e:
+            print(f"Error loading image from {file_path}: {e}")
+            raise
+        return img
+
     def detect_cloud_mask(self, image: Image.Image) -> Image.Image:
         # Preprocess
         inputs = self.image_processor(images=image, return_tensors="pt").to(self.device)
@@ -186,7 +198,13 @@ def main(args: argparse.Namespace):
         args.img_size_y,
         args.num_inference_steps,
     )
-    img = processor.load_s3_image(args.image_s3)
+
+    if args.image_local:
+        img = processor.load_image(args.image_local)
+    elif args.image_s3:
+        img = processor.load_s3_image(args.image_s3)
+    else:
+        raise ValueError("Either --image-local or --image-s3 must be provided.")
     mask = processor.detect_cloud_mask(img)
     img.save("original.png")
     mask.save("mask.png")
