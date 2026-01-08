@@ -146,8 +146,7 @@ class InpaintCresi:
         )
         pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
         cloud_mask = ((pred_seg == 1) | (pred_seg == 4)).astype(np.uint8)
-        print(np.unique(cloud_mask, return_counts=True))
-        # cloud_mask = cloud_mask * 255
+        cloud_mask = cloud_mask * 255
         return Image.fromarray(cloud_mask).convert("L")
 
     def inpaint_tile(self, img_tile, mask_tile, prompt):
