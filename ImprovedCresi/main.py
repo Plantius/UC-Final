@@ -145,7 +145,17 @@ class InpaintCresi:
             align_corners=False,
         )
         pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
-        cloud_mask = (~((pred_seg == 1) | (pred_seg == 4))).astype(np.uint8)
+        cloud_mask = (
+            ~(
+                (pred_seg == 1)
+                | (pred_seg == 4)
+                | (pred_seg == 16)
+                | (pred_seg == 9)
+                | (pred_seg == 10)
+                | (pred_seg == 11)
+                | (pred_seg == 26)
+            )
+        ).astype(np.uint8)
         cloud_mask = cloud_mask * 255
         return Image.fromarray(cloud_mask).convert("L")
 
