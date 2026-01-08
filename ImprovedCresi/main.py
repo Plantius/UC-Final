@@ -3,9 +3,10 @@ import argparse
 import numpy as np
 import s3fs
 import torch
+import torch.nn.functional as F
 from PIL import Image
 from src.diffusers.pipelines import StableDiffusionInpaintPipeline
-from transformers import SegformerFeatureExtractor, SegformerForSemanticSegmentation
+from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
 
 
 def argparser():
@@ -44,7 +45,12 @@ class InpaintCresi:
         img_size_x: int,
         img_size_y: int,
         num_inference_steps: int,
+        uername: str = "s3322637",
     ) -> None:
+        self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
+        self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
+        self.username = uername
+
         self.fs = fs
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
@@ -54,24 +60,32 @@ class InpaintCresi:
         self.num_inference_steps = num_inference_steps
         self.guidance_scale = 7.5
 
-        self.feature_extractor = SegformerFeatureExtractor.from_pretrained(
-            "nvidia/segformer-b0-finetuned-ade-512-512",
-            cache_dir="/local/s3322637/.cache/",
-        )
-        self.segformer_model = (
-            SegformerForSemanticSegmentation.from_pretrained(
-                "nvidia/segformer-b0-finetuned-ade-512-512",
-                cache_dir="/local/s3322637/.cache/",
+        self.init_models()
+
+    def init_models(self):
+        try:
+            self.image_processor = AutoImageProcessor.from_pretrained(
+                self.mask_model_name,
+                cache_dir="/local/{self.username}/.cache/",
             )
-            .to(self.device)
-            .eval()
-        )
+            self.model = (
+                AutoModelForSemanticSegmentation.from_pretrained(
+                    self.mask_model_name,
+                    cache_dir="/local/{self.username}/.cache/",
+                )
+                .to(self.device)
+                .eval()
+            )
 
-        self.inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
-            "stable-diffusion-v1-5/stable-diffusion-inpainting"
-        ).to(self.device)
+            self.inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
+                self.inpaint_model_name,
+                cache_dir=f"/local/{self.username}/.cache/",
+            ).to(self.device)
 
-        print(type(self.inpaint_pipe))
+            print("Models loaded successfully.")
+        except Exception as e:
+            print(f"Error loading models: {e}")
+            raise
 
     def load_s3_image(self, s3_path: str) -> Image.Image:
         with self.fs.open(s3_path, "rb") as f:
@@ -81,16 +95,21 @@ class InpaintCresi:
 
     def detect_cloud_mask(self, image: Image.Image) -> Image.Image:
         # Preprocess
-        inputs = self.feature_extractor(images=image, return_tensors="pt").to(
-            self.device
-        )
+        inputs = self.image_processor(images=image, return_tensors="pt").to(self.device)
         with torch.no_grad():
-            outputs = self.segformer_model(**inputs)
+            outputs = self.model(**inputs)
 
         logits = outputs.logits
-        mask = torch.argmax(logits, dim=1)[0].cpu().numpy()
 
-        cloud_mask = ((mask == 1) | (mask == 2)).astype(np.uint8) * 255
+        upsampled_logits = F.interpolate(
+            logits,
+            size=image.size[::-1],  # (height, width)
+            mode="bilinear",
+            align_corners=False,
+        )
+        pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
+        cloud_mask = ((pred_seg == 1) | (pred_seg == 4)).astype(np.uint8)
+
         return Image.fromarray(cloud_mask).resize((self.img_size_x, self.img_size_y))
 
     def inpaint(
