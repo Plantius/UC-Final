@@ -136,7 +136,6 @@ class InpaintCresi:
         inputs = self.image_processor(images=image, return_tensors="pt").to(self.device)
         with torch.no_grad():
             outputs = self.model(**inputs)
-
         logits = outputs.logits
 
         upsampled_logits = F.interpolate(
@@ -145,7 +144,9 @@ class InpaintCresi:
             mode="bilinear",
             align_corners=False,
         )
+        print(logits)
         pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
+        print(pred_seg)
         cloud_mask = ((pred_seg == 1) | (pred_seg == 4)).astype(np.uint8)
 
         return Image.fromarray(
