@@ -83,8 +83,6 @@ class InpaintCresi:
     def __init__(
         self,
         fs: s3fs.S3FileSystem,
-        img_size_x: int,
-        img_size_y: int,
         num_inference_steps: int,
         uername: str = "s3322637",
     ) -> None:
@@ -96,8 +94,6 @@ class InpaintCresi:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
 
-        self.img_size_x = img_size_x
-        self.img_size_y = img_size_y
         self.num_inference_steps = num_inference_steps
         self.guidance_scale = 7.5
 
@@ -249,8 +245,6 @@ def main(args: argparse.Namespace):
     fs = s3fs.S3FileSystem(anon=True)
     processor = InpaintCresi(
         fs,
-        args.img_size_x,
-        args.img_size_y,
         args.num_inference_steps,
     )
 
