@@ -89,7 +89,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "restor/tcd-segformer-mit-b2"
-        self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
+        self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
         self.username = username
         self.tile_size = tile_size
 
@@ -121,10 +121,11 @@ class InpaintCresi:
                 self.inpaint_model_name,
                 cache_dir=f"/local/{self.username}/.cache/",
                 torch_dtype=torch.float16,
+                variant="fp16",
             ).to(self.device)
 
             self.inpaint_pipe.enable_model_cpu_offload()
-            self.inpaint_pipe.set_progress_bar_config(disable=True)
+            # self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
         except Exception as e:
@@ -199,6 +200,7 @@ class InpaintCresi:
         )
 
         for job in jobs:
+            print(f"Inpainting tile at position ({job[0]}, {job[1]})")
             x, y, image, mask = job
 
             output = self.inpaint_pipe(
