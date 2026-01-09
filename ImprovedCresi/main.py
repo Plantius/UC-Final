@@ -1,5 +1,6 @@
 import argparse
 
+import cv2
 import numpy as np
 import s3fs
 import torch
@@ -14,10 +15,10 @@ def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
 
     parser.add_argument(
-        "--batch-size",
+        "--tile-size",
         type=int,
-        default=4,
-        help="Batch size for processing image tiles",
+        default=256,
+        help="Tile size for processing images",
     )
 
     parser.add_argument(
@@ -84,13 +85,13 @@ class InpaintCresi:
         self,
         fs: s3fs.S3FileSystem,
         num_inference_steps: int,
-        batch_size: int,
+        tile_size: int,
         username: str = "s3322637",
     ) -> None:
-        self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
+        self.mask_model_name = "restor/tcd-segformer-mit-b2"
         self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
         self.username = username
-        self.batch_size = batch_size
+        self.tile_size = tile_size
 
         self.fs = fs
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -123,7 +124,7 @@ class InpaintCresi:
             ).to(self.device)
 
             self.inpaint_pipe.enable_model_cpu_offload()
-            # self.inpaint_pipe.set_progress_bar_config(disable=True)
+            self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
         except Exception as e:
@@ -157,19 +158,12 @@ class InpaintCresi:
             align_corners=False,
         )
         pred_seg = torch.argmax(upsampled_logits, dim=1).squeeze().cpu().numpy()
-        cloud_mask = (
-            ~(
-                (pred_seg == 1)
-                | (pred_seg == 4)
-                | (pred_seg == 16)
-                | (pred_seg == 9)
-                | (pred_seg == 10)
-                | (pred_seg == 11)
-                | (pred_seg == 26)
-            )
-        ).astype(np.uint8)
-        cloud_mask = cloud_mask * 255
-        return Image.fromarray(cloud_mask).convert("L")
+        tree_mask = (pred_seg == 1).astype(np.uint8) * 255
+
+        kernel = np.ones((3, 3), np.uint8)
+        tree_mask = cv2.morphologyEx(tree_mask, cv2.MORPH_OPEN, kernel)
+
+        return Image.fromarray(tree_mask).convert("L")
 
     def inpaint_tile(self, img_tile, mask_tile, prompt):
         return self.inpaint_pipe(
@@ -247,7 +241,7 @@ def main(args: argparse.Namespace):
     processor = InpaintCresi(
         fs,
         args.num_inference_steps,
-        args.batch_size,
+        args.tile_size,
     )
 
     if args.image_local:
