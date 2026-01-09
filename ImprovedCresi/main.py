@@ -203,9 +203,10 @@ class InpaintCresi:
 
             images = [j[2] for j in batch]
             masks = [j[3] for j in batch]
+            prompts = [prompt] * len(images)
 
             outputs = self.inpaint_pipe(
-                prompt=prompt,
+                prompt=prompts,
                 image=images,
                 mask_image=masks,
                 num_inference_steps=self.num_inference_steps,
