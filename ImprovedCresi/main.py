@@ -5,9 +5,8 @@ import s3fs
 import torch
 import torch.nn.functional as F
 import tqdm
+from diffusers import AutoPipelineForInpainting
 from PIL import Image
-from saicinpainting.evaluation.data import pad_tensor_to_modulo
-from saicinpainting.training.trainers import load_checkpoint
 from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
 
 
@@ -89,6 +88,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
+        self.inpaint_model_name = "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
         self.username = username
         self.batch_size = batch_size
 
@@ -116,11 +116,11 @@ class InpaintCresi:
                 .eval()
             )
 
-            self.lama = load_checkpoint(
-                "/local/s3322637/data/big-lama",
-                map_location=self.device,
-                strict=False,
-            ).eval()
+            self.inpaint_pipe = AutoPipelineForInpainting.from_pretrained(
+                self.inpaint_model_name,
+                cache_dir=f"/local/{self.username}/.cache/",
+                torch_dtype=torch.float16,
+            ).to(self.device)
 
             # self.inpaint_pipe.enable_model_cpu_offload()
             # self.inpaint_pipe.set_progress_bar_config(disable=True)
@@ -180,61 +180,70 @@ class InpaintCresi:
             guidance_scale=self.guidance_scale,
         ).images[0]
 
-    def lama_inpaint_batch(self, images, masks):
-        imgs, msks = [], []
-
-        for img, msk in zip(images, masks):
-            img = np.array(img).astype(np.float32) / 255.0
-            msk = (np.array(msk) > 0).astype(np.float32)
-
-            imgs.append(torch.from_numpy(img).permute(2, 0, 1))
-            msks.append(torch.from_numpy(msk).unsqueeze(0))
-
-        imgs = torch.stack(imgs).to(self.device)
-        msks = torch.stack(msks).to(self.device)
-
-        imgs = pad_tensor_to_modulo(imgs, 8)
-        msks = pad_tensor_to_modulo(msks, 8)
-
-        with torch.no_grad():
-            out = self.lama(imgs, msks)
-
-        results = []
-        for o in out:
-            o = (o.permute(1, 2, 0).cpu().numpy() * 255).astype(np.uint8)
-            results.append(Image.fromarray(o))
-
-        return results
-
-    def inpaint(self, image: Image.Image, mask: Image.Image, output_path: str):
-        image, orig_size = pad_to_multiple_pil(image, 512)
-        mask, _ = pad_to_multiple_pil(mask, 512)
-
+    def inpaint_full_image(self, image, mask, prompt):
         result = image.copy()
+
         tiles = tile_image_and_mask(image, mask)
 
-        jobs = [(x, y, i, m) for x, y, i, m in tiles if has_cloud(m)]
+        jobs = []
+        for i, tile in enumerate(tiles):
+            x, y, img_tile, mask_tile = tile
+            if has_cloud(mask_tile):
+                img_tile.save(f"img_tile_{i}.png")
+                mask_tile.save(f"mask_tile_{i}.png")
+                jobs.append((x, y, img_tile, mask_tile))
 
-        print(f"Tiles to inpaint: {len(jobs)}")
+        print(f"Total tiles to inpaint: {len(jobs)}")
 
-        pbar = tqdm.tqdm(total=len(jobs), desc="Inpainting tiles")
+        if len(jobs) == 0:
+            return result
+
+        pbar = tqdm.tqdm(
+            total=int(np.ceil(len(jobs) / self.batch_size)),
+            desc="Inpainting tiles",
+            unit="batch",
+        )
 
         for i in range(0, len(jobs), self.batch_size):
             batch = jobs[i : i + self.batch_size]
-            imgs = [b[2] for b in batch]
-            msks = [b[3] for b in batch]
 
-            outs = self.lama_inpaint_batch(imgs, msks)
+            images = [j[2] for j in batch]
 
-            for (x, y, _, _), out in zip(batch, outs):
-                result.paste(out, (x, y))
+            masks = [j[3] for j in batch]
+            prompts = [prompt] * len(images)
+
+            outputs = self.inpaint_pipe(
+                prompt=prompts,
+                image=images,
+                mask_image=masks,
+                num_inference_steps=self.num_inference_steps,
+                guidance_scale=self.guidance_scale,
+            ).images
+
+            for (x, y, _, _), out_img in zip(batch, outputs):
+                result.paste(out_img, (x, y))
                 pbar.update(1)
 
         pbar.close()
+        return result
 
-        w, h = orig_size
-        result.crop((0, 0, w, h)).save(output_path)
-        print(f"Saved: {output_path}")
+    def inpaint(
+        self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
+    ):
+        padded_image, original_size = pad_to_multiple(image, 512, fill=0)
+        padded_mask, _ = pad_to_multiple(mask, 512, fill=0)
+
+        padded_result = self.inpaint_full_image(
+            image=padded_image,
+            mask=padded_mask,
+            prompt=prompt,
+        )
+
+        w, h = original_size
+        result = padded_result.crop((0, 0, w, h))
+
+        result.save(output_path)
+        print(f"Inpainted image saved to {output_path}")
 
     def cresi(self, data):
         pass
