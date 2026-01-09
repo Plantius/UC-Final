@@ -178,7 +178,7 @@ class InpaintCresi:
             guidance_scale=self.guidance_scale,
         ).images[0]
 
-    def inpaint_full_image(self, image, mask, prompt, batch_size=4):
+    def inpaint_full_image(self, image, mask, prompt):
         result = image.copy()
 
         tiles = tile_image_and_mask(image, mask)
@@ -194,13 +194,13 @@ class InpaintCresi:
             return result
 
         pbar = tqdm.tqdm(
-            total=int(np.ceil(len(jobs) / batch_size)),
+            total=int(np.ceil(len(jobs) / self.batch_size)),
             desc="Inpainting tiles",
             unit="batch",
         )
 
-        for i in range(0, len(jobs), batch_size):
-            batch = jobs[i : i + batch_size]
+        for i in range(0, len(jobs), self.batch_size):
+            batch = jobs[i : i + self.batch_size]
 
             images = [j[2] for j in batch]
             masks = [j[3] for j in batch]
