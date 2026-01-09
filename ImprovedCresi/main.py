@@ -68,6 +68,20 @@ def tile_image_and_mask(image, mask, tile_size=512):
     return tiles
 
 
+def pad_to_multiple(image: Image.Image, multiple: int, fill=0):
+    w, h = image.size
+    new_w = ((w + multiple - 1) // multiple) * multiple
+    new_h = ((h + multiple - 1) // multiple) * multiple
+
+    if image.mode == "RGB":
+        padded = Image.new("RGB", (new_w, new_h), (fill, fill, fill))
+    else:
+        padded = Image.new("L", (new_w, new_h), fill)
+
+    padded.paste(image, (0, 0))
+    return padded, (w, h)
+
+
 class InpaintCresi:
     def __init__(
         self,
@@ -140,7 +154,7 @@ class InpaintCresi:
 
         upsampled_logits = F.interpolate(
             logits,
-            size=image.size[::-1],  # (height, width)
+            size=image.size[::-1],
             mode="bilinear",
             align_corners=False,
         )
@@ -185,11 +199,18 @@ class InpaintCresi:
     def inpaint(
         self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
     ):
-        result = self.inpaint_full_image(
-            image=image,
-            mask=mask,
+        padded_image, original_size = pad_to_multiple(image, 512, fill=0)
+        padded_mask, _ = pad_to_multiple(mask, 512, fill=255)
+
+        padded_result = self.inpaint_full_image(
+            image=padded_image,
+            mask=padded_mask,
             prompt=prompt,
         )
+
+        w, h = original_size
+        result = padded_result.crop((0, 0, w, h))
+
         result.save(output_path)
         print(f"Inpainted image saved to {output_path}")
 
