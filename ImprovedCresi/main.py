@@ -84,11 +84,13 @@ class InpaintCresi:
         self,
         fs: s3fs.S3FileSystem,
         num_inference_steps: int,
-        uername: str = "s3322637",
+        batch_size: int,
+        username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
         self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
-        self.username = uername
+        self.username = username
+        self.batch_size = batch_size
 
         self.fs = fs
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -103,12 +105,12 @@ class InpaintCresi:
         try:
             self.image_processor = AutoImageProcessor.from_pretrained(
                 self.mask_model_name,
-                cache_dir="/local/{self.username}/.cache/",
+                cache_dir=f"/local/{self.username}/.cache/",
             )
             self.model = (
                 AutoModelForSemanticSegmentation.from_pretrained(
                     self.mask_model_name,
-                    cache_dir="/local/{self.username}/.cache/",
+                    cache_dir=f"/local/{self.username}/.cache/",
                 )
                 .to(self.device)
                 .eval()
@@ -246,6 +248,7 @@ def main(args: argparse.Namespace):
     processor = InpaintCresi(
         fs,
         args.num_inference_steps,
+        args.batch_size,
     )
 
     if args.image_local:
