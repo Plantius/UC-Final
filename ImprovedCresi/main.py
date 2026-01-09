@@ -177,7 +177,7 @@ class InpaintCresi:
     def inpaint_full_image(self, image, mask, prompt):
         result = image.copy()
 
-        tiles = tile_image_and_mask(image, mask)
+        tiles = tile_image_and_mask(image, mask, tile_size=self.tile_size)
 
         jobs = []
         for i, tile in enumerate(tiles):
@@ -217,8 +217,8 @@ class InpaintCresi:
     def inpaint(
         self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
     ):
-        padded_image, original_size = pad_to_multiple(image, 512, fill=0)
-        padded_mask, _ = pad_to_multiple(mask, 512, fill=0)
+        padded_image, original_size = pad_to_multiple(image, self.tile_size, fill=0)
+        padded_mask, _ = pad_to_multiple(mask, self.tile_size, fill=0)
 
         padded_result = self.inpaint_full_image(
             image=padded_image,
