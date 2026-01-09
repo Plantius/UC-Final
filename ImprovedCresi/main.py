@@ -123,8 +123,8 @@ class InpaintCresi:
                 torch_dtype=torch.float16,
             ).to(self.device)
 
-            self.inpaint_pipe.enable_model_cpu_offload()
-            # self.inpaint_pipe.set_progress_bar_config(disable=True)
+            # self.inpaint_pipe.enable_model_cpu_offload()
+            self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
         except Exception as e:
@@ -188,8 +188,8 @@ class InpaintCresi:
         for i, tile in enumerate(tiles):
             x, y, img_tile, mask_tile = tile
             if has_cloud(mask_tile):
-                img_tile.save(f"img_tile_{i}.png")
-                mask_tile.save(f"mask_tile_{i}.png")
+                # img_tile.save(f"img_tile_{i}.png")
+                # mask_tile.save(f"mask_tile_{i}.png")
                 jobs.append((x, y, img_tile, mask_tile))
 
         print(f"Total tiles to inpaint: {len(jobs)}")
