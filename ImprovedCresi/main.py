@@ -45,7 +45,7 @@ def has_cloud(mask_tile, threshold=0.01):
     return cloud_fraction > threshold
 
 
-def tile_image_and_mask(image, mask, tile_size=512):
+def tile_image_and_mask(image, mask, tile_size=1024):
     tiles = []
 
     w, h = image.size
@@ -122,7 +122,7 @@ class InpaintCresi:
                 torch_dtype=torch.float16,
             ).to(self.device)
 
-            self.inpaint_pipe.enable_model_cpu_offload()
+            # self.inpaint_pipe.enable_model_cpu_offload()
             # self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
@@ -230,8 +230,8 @@ class InpaintCresi:
     def inpaint(
         self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
     ):
-        padded_image, original_size = pad_to_multiple(image, 512, fill=0)
-        padded_mask, _ = pad_to_multiple(mask, 512, fill=0)
+        padded_image, original_size = pad_to_multiple(image, 1024, fill=0)
+        padded_mask, _ = pad_to_multiple(mask, 1024, fill=0)
 
         padded_result = self.inpaint_full_image(
             image=padded_image,
