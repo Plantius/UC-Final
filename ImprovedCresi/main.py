@@ -272,7 +272,7 @@ def main(args: argparse.Namespace):
     elif args.image_s3:
         img = processor.load_s3_image(args.image_s3)
     elif args.images_local:
-        for idx, image_path in enumerate(args.images_local):
+        for idx, image_path in enumerate(args.images_local, start=1):
             img = processor.load_image(image_path)
             mask = processor.detect_cloud_mask(img)
             img.save(f"original_{idx}.png")
