@@ -88,7 +88,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
-        self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
+        self.inpaint_model_name = "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
         self.username = username
         self.batch_size = batch_size
 
