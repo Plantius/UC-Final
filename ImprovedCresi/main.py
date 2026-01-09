@@ -118,8 +118,8 @@ class InpaintCresi:
 
             self.inpaint_pipe = AutoPipelineForInpainting.from_pretrained(
                 self.inpaint_model_name,
-                torch_dtype=torch.float16,
                 cache_dir=f"/local/{self.username}/.cache/",
+                dtype=torch.float16,
             ).to(self.device)
 
             self.inpaint_pipe.enable_model_cpu_offload()
@@ -133,7 +133,6 @@ class InpaintCresi:
     def load_s3_image(self, s3_path: str) -> Image.Image:
         with self.fs.open(s3_path, "rb") as f:
             img = Image.open(f).convert("RGB")
-        # img = img.resize((self.img_size_x, self.img_size_y))
         return img
 
     def load_image(self, file_path: str) -> Image.Image:
@@ -227,7 +226,7 @@ class InpaintCresi:
     def inpaint(
         self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
     ):
-        padded_image, original_size = pad_to_multiple(image, 512, fill=0)
+        padded_image, original_size = pad_to_multiple(image, 512, fill=255)
         padded_mask, _ = pad_to_multiple(mask, 512, fill=255)
 
         padded_result = self.inpaint_full_image(
@@ -261,8 +260,8 @@ def main(args: argparse.Namespace):
     else:
         raise ValueError("Either --image-local or --image-s3 must be provided.")
     mask = processor.detect_cloud_mask(img)
-    img.save("original.jpg")
-    mask.save("mask.jpg", mode="L")
+    img.save("original.png")
+    mask.save("mask.png", mode="L")
     print("Original image and mask saved.")
 
     prompt = "A satellite image of a city with buildings and roads, clouds removed realistically"
