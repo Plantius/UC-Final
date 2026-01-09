@@ -186,8 +186,11 @@ class InpaintCresi:
         tiles = tile_image_and_mask(image, mask)
 
         jobs = []
-        for x, y, img_tile, mask_tile in tiles:
+        for i, tile in enumerate(tiles):
+            x, y, img_tile, mask_tile = tile
             if has_cloud(mask_tile):
+                img_tile.save(f"img_tile_{i}.png")
+                mask_tile.save(f"mask_tile_{i}.png")
                 jobs.append((x, y, img_tile, mask_tile))
 
         print(f"Total tiles to inpaint: {len(jobs)}")
@@ -205,6 +208,7 @@ class InpaintCresi:
             batch = jobs[i : i + self.batch_size]
 
             images = [j[2] for j in batch]
+
             masks = [j[3] for j in batch]
             prompts = [prompt] * len(images)
 
@@ -264,7 +268,7 @@ def main(args: argparse.Namespace):
     mask.save("mask.png", mode="L")
     print("Original image and mask saved.")
 
-    prompt = "A satellite image of a city with buildings and roads, clouds removed realistically"
+    prompt = "a clear sky satellite image"
     output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
     output = processor.cresi(output)
 
