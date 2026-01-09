@@ -37,6 +37,12 @@ def argparser():
         type=str,
         help="Path to the local input image for inpainting",
     )
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default="inpainted_image.png",
+        help="Path to save the inpainted output image",
+    )
     return parser.parse_args()
 
 
@@ -204,7 +210,6 @@ class InpaintCresi:
         )
 
         for i, job in enumerate(jobs, start=1):
-            print(f"Inpainting tile {i}/{len(jobs)}")
             x, y, image, mask = job
 
             output = self.inpaint_pipe(
@@ -266,7 +271,7 @@ def main(args: argparse.Namespace):
     print("Original image and mask saved.")
 
     prompt = "road, satellite imagery, realistic"
-    output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
+    output = processor.inpaint(img, mask, prompt, args.output_path)
     output = processor.cresi(output)
 
 
