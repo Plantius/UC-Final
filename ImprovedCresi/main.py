@@ -255,7 +255,7 @@ def main(args: argparse.Namespace):
     mask.save("mask.png", mode="L")
     print("Original image and mask saved.")
 
-    prompt = "a clear sky satellite image"
+    prompt = "remove all trees such that the road is clearly visible, photorealistic, satellite image"
     output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
     output = processor.cresi(output)
 
