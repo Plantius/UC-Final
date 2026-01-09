@@ -126,6 +126,7 @@ class InpaintCresi:
                 self.inpaint_model_name,
                 cache_dir=f"/local/{self.username}/.cache/",
             ).to(self.device)
+            self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
         except Exception as e:
