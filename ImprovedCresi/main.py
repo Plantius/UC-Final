@@ -38,7 +38,7 @@ def argparser():
         help="Path to the local input image for inpainting",
     )
     parser.add_argument(
-        "images-local",
+        "--images-local",
         nargs="*",
         type=str,
         help="Paths to multiple local input images for inpainting",
