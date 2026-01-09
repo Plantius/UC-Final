@@ -119,11 +119,11 @@ class InpaintCresi:
             self.inpaint_pipe = AutoPipelineForInpainting.from_pretrained(
                 self.inpaint_model_name,
                 cache_dir=f"/local/{self.username}/.cache/",
-                dtype=torch.float16,
+                torch_dtype=torch.float16,
             ).to(self.device)
 
             self.inpaint_pipe.enable_model_cpu_offload()
-            self.inpaint_pipe.set_progress_bar_config(disable=True)
+            # self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
         except Exception as e:
