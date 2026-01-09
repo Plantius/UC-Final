@@ -1,162 +1,469 @@
-# DiffusionSat (ICLR 2024)
-**[Website](https://samar-khanna.github.io/DiffusionSat/)** | 
-**[Paper](https://arxiv.org/abs/2312.03606)**   |
-**[Video](https://slideslive.com/39018155/diffusionsat-a-generative-foundation-model-for-satellite-imagery)**  |
-**[Zenodo](https://zenodo.org/communities/diffusionsat)**  
+# 🦙 LaMa: Resolution-robust Large Mask Inpainting with Fourier Convolutions
 
-This is the official repository for the ICLR 2024 paper 
-"_DiffusionSat: A Generative Foundation Model For Satellite Imagery_".  
+by Roman Suvorov, Elizaveta Logacheva, Anton Mashikhin, 
+Anastasia Remizova, Arsenii Ashukha, Aleksei Silvestrov, Naejin Kong, Harshith Goka, Kiwoong Park, Victor Lempitsky.
 
-Authors: 
-[Samar Khanna](https://www.samarkhanna.com) <sup>1</sup>, 
-[Patrick Liu](https://web.stanford.edu/~pliu1/), 
-[Linqi (Alex) Zhou](https://alexzhou907.github.io), 
-[Chenlin Meng](https://chenlin9.github.io/), 
-[Robin Rombach](https://github.com/rromb), 
-[Marshall Burke](https://web.stanford.edu/~mburke/), 
-[David B. Lobell](https://earth.stanford.edu/people/david-lobell#gs.5vndff), 
-[Stefano Ermon](https://cs.stanford.edu/~ermon/).
+<p align="center" "font-size:30px;">
+  🔥🔥🔥
+  <br>
+  <b>
+LaMa generalizes surprisingly well to much higher resolutions (~2k❗️) than it saw during training (256x256), and achieves the excellent performance even in challenging scenarios, e.g. completion of periodic structures.</b>
+</p>
 
-## Installation
-We use conda to create our environments. You will have to do the following:
-```bash
-cd DiffusionSat 
-conda create -n diffusionsat python=3.10
+[[Project page](https://advimman.github.io/lama-project/)] [[arXiv](https://arxiv.org/abs/2109.07161)] [[Supplementary](https://ashukha.com/projects/lama_21/lama_supmat_2021.pdf)] [[BibTeX](https://senya-ashukha.github.io/projects/lama_21/paper.txt)] [[Casual GAN Papers Summary](https://www.casualganpapers.com/large-masks-fourier-convolutions-inpainting/LaMa-explained.html)]
+ 
+<p align="center">
+  <a href="https://colab.research.google.com/drive/15KTEIScUbVZtUP6w2tCDMVpE-b1r9pkZ?usp=drive_link">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg"/>
+  </a>
+      <br>
+   Try out in Google Colab 
+  <br>
+  All yandex dist links went bad, you can download the model from the https://drive.google.com/drive/folders/1B2x7eQDgecTL0oh3LSIBDGj0fTxs6Ips?usp=sharing 
+</p>
 
-# if you want cuda 11.8, replace the index url with https://download.pytorch.org/whl/cu118
-pip install torch==2.2.2 torchvision==0.17.2 --index-url https://download.pytorch.org/whl/cu121
-pip install -e ".[torch]"  # install editable diffusers
-pip install -r requirements_remaining.txt
+<p align="center">
+  <img src="https://raw.githubusercontent.com/senya-ashukha/senya-ashukha.github.io/master/projects/lama_21/ezgif-4-0db51df695a8.gif" />
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/senya-ashukha/senya-ashukha.github.io/master/projects/lama_21/gif_for_lightning_v1_white.gif" />
+</p>
+
+
+
+# LaMa development
+(Feel free to share your paper by creating an issue)
+- https://github.com/geekyutao/Inpaint-Anything --- Inpaint Anything: Segment Anything Meets Image Inpainting
+<p align="center">
+  <img src="https://raw.githubusercontent.com/geekyutao/Inpaint-Anything/main/example/MainFramework.png" />
+</p>
+
+- [Feature Refinement to Improve High Resolution Image Inpainting](https://arxiv.org/abs/2206.13644) / [video](https://www.youtube.com/watch?v=gEukhOheWgE) / code https://github.com/advimman/lama/pull/112 / by Geomagical Labs ([geomagical.com](geomagical.com))
+<p align="center">
+  <img src="https://raw.githubusercontent.com/senya-ashukha/senya-ashukha.github.io/master/images/FeatureRefinement.png" />
+</p>
+
+# Non-official 3rd party apps:
+(Feel free to share your app/implementation/demo by creating an issue)
+
+- https://github.com/enesmsahin/simple-lama-inpainting - a simple pip package for LaMa inpainting.
+- https://github.com/mallman/CoreMLaMa - Apple's Core ML model format
+- [https://cleanup.pictures](https://cleanup.pictures/) - a simple interactive object removal tool by [@cyrildiagne](https://twitter.com/cyrildiagne)
+    - [lama-cleaner](https://github.com/Sanster/lama-cleaner) by [@Sanster](https://github.com/Sanster/lama-cleaner) is a self-host version of [https://cleanup.pictures](https://cleanup.pictures/)
+- Integrated to [Huggingface Spaces](https://huggingface.co/spaces) with [Gradio](https://github.com/gradio-app/gradio). See demo: [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/akhaliq/lama) by [@AK391](https://github.com/AK391)
+- Telegram bot [@MagicEraserBot](https://t.me/MagicEraserBot) by [@Moldoteck](https://github.com/Moldoteck), [code](https://github.com/Moldoteck/MagicEraser)
+- [Auto-LaMa](https://github.com/andy971022/auto-lama) = DE:TR object detection + LaMa inpainting by [@andy971022](https://github.com/andy971022)
+- [LAMA-Magic-Eraser-Local](https://github.com/zhaoyun0071/LAMA-Magic-Eraser-Local) = a standalone inpainting application built with PyQt5 by [@zhaoyun0071](https://github.com/zhaoyun0071)
+- [Hama](https://www.hama.app/) - object removal with a smart brush which simplifies mask drawing.
+- [ModelScope](https://www.modelscope.cn/models/damo/cv_fft_inpainting_lama/summary) = the largest Model Community in Chinese by  [@chenbinghui1](https://github.com/chenbinghui1).
+- [LaMa with MaskDINO](https://github.com/qwopqwop200/lama-with-maskdino) = MaskDINO object detection + LaMa inpainting with refinement by [@qwopqwop200](https://github.com/qwopqwop200).
+- [CoreMLaMa](https://github.com/mallman/CoreMLaMa) - a script to convert Lama Cleaner's port of LaMa to Apple's Core ML model format.
+
+# Environment setup
+
+❗️❗️❗️ All yandex dist links went bad, you can download the model from the [google drive](https://drive.google.com/drive/folders/1B2x7eQDgecTL0oh3LSIBDGj0fTxs6Ips?usp=sharing) ❗️❗️❗️
+
+Clone the repo:
+`git clone https://github.com/advimman/lama.git`
+
+There are three options of an environment:
+
+1. Python virtualenv:
+
+    ```
+    virtualenv inpenv --python=/usr/bin/python3
+    source inpenv/bin/activate
+    pip install torch==1.8.0 torchvision==0.9.0
+    
+    cd lama
+    pip install -r requirements.txt 
+    ```
+
+2. Conda
+    
+    ```
+    % Install conda for Linux, for other OS download miniconda at https://docs.conda.io/en/latest/miniconda.html
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda
+    $HOME/miniconda/bin/conda init bash
+
+    cd lama
+    conda env create -f conda_env.yml
+    conda activate lama
+    conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch -y
+    pip install pytorch-lightning==1.2.9
+    ```
+ 
+3. Docker: No actions are needed 🎉.
+
+# Inference <a name="prediction"></a>
+
+Run
+```
+cd lama
+export TORCH_HOME=$(pwd) && export PYTHONPATH=$(pwd)
 ```
 
-## Model checkpoint files
-Model checkpoint files have been uploaded to Zenodo within the DiffusionSat community at [this link](https://zenodo.org/communities/diffusionsat).
+**1. Download pre-trained models**
 
-**OLD**: Model checkpoint files were previously available [on Google Drive](https://drive.google.com/drive/u/2/folders/1p6nk4S5IpZEck3_xLo2hcI2Ha3P8LiA9).
-Note that the files on Google Drive may not be forever available, and could be taken down at any moment.  
-(While the files are on Google Drive, you can use [gdown](https://github.com/wkentaro/gdown) to download them).
-
-## Single Image Generation
-This section covers image-generation using single-image DiffusionSat, without control signal inputs.
-The relevant jupyter notebook can be found in `notebooks/single-image.ipynb`. 
-
-The relevant model checkpoints can be found here:  
-
-| Resolution | Zenodo Page                                 | Download Link                                                                                                |
-|------------|---------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| 512 x 512  | [View](https://zenodo.org/records/13751498) | [Download](https://zenodo.org/records/13751498/files/finetune_sd21_sn-satlas-fmow_snr5_md7norm_bs64.zip)     |
-| 256 x 256  | [View](https://zenodo.org/records/13756199) | [Download](https://zenodo.org/records/13756199/files/finetune_sd21_256_sn-satlas-fmow_snr5_md7norm_bs64.zip) |
-
-
-## Conditional Image Generation
-
-The Jupyter notebook that demonstrates generation with 3D ControlNets is shown
-for the Texas housing dataset in `notebooks/controlnet_texas_samples.ipynb`. 
-Generating with a ControlNet that accepts a single conditioning image + metadata is similar.
-
-The relevant model checkpoints can be found here:
-
-| Task                                  | Zenodo Page                                 | Download Link                                                                                     |
-|---------------------------------------|---------------------------------------------|---------------------------------------------------------------------------------------------------|
-| Texas Super-resolution                | [View](https://zenodo.org/records/13756211) | [Download](https://zenodo.org/records/13756211/files/controlnet3d-mixattn_sd21_md7norm_texas.zip) |
-| fMoW Sentinel -> RGB Super-resolution | [View](https://zenodo.org/records/13756246) | [Download](https://zenodo.org/records/13756246/files/controlnet_sd21_md7norm_fmow_condres256.zip) |
-
-## Training
-These sections describe how to launch training using `accelerate`.
-
-
-#### A note on `accelerate`
-In this repository, we provide an example config file to use with `accelerate` in `launch_accelerate_configs`. 
-You can also configure your own file by running `accelerate config` in your terminal and following the steps. 
-This will save the config file in the  cache location (eg: `.cache/huggingface/accelerate/default_config.yaml`), 
-and you can simply copy over the `.yaml` file to `launch_accelerate_configs/` or remove the 
-`--config_file` argument from `accelerate launch` in the bash script.
-
-
-#### A note on datasets
-See [this section](#datasets) for more details on how to use `webdataset` for training. 
-You will need to specify the dataset shardlist `.txt` files in `./datasets`.
-
-
-### Single-Image Training
-To train the `(text, metadata) -> single_image` model, use the following command:
-```shell
-./launch_scripts/launch_256_fmow_satlas_spacenet_img_txt_md.sh launch_accelerate_configs/single_gpu_accelerate_config.yaml
+The best model (Places2, Places Challenge):
+    
+```    
+curl -LJO https://huggingface.co/smartywu/big-lama/resolve/main/big-lama.zip
+unzip big-lama.zip
 ```
 
-### Conditional (ControlNet) Training
-To train the `(text, target_metadata, conditioning_metadata, conditioning_images) -> single_image` ControlNet model, use the following commands, 
-detailed below.  
+All models (Places & CelebA-HQ):
 
-As a quick summary, these scripts use a frozen single-image model (see above) as a prior to 
-train a ControlNet (which could be a 3D ControlNet for temporal conditioning images). 
-This ControlNet can then generate a new image for the desired input text and metadata prompt, 
-conditioned on additional metadata and images.
-
-You will also need to provide the path to the single-image model checkpoint 
-(by specifying this path in the `UNET_PATH` variable) that will remain frozen throughout training.
-
-#### Texas Housing Super-resolution
-```shell
-./launch_scripts/launch_texas_md_controlnet.sh launch_accelerate_configs/single_gpu_accelerate_config.yaml
 ```
-This task uses the Texas housing dataset from [satellite-pixel-synthesis-pytorch](https://github.com/KellyYutongHe/satellite-pixel-synthesis-pytorch).
-The task is: given a low-res and high-res image of a location at time `T`, and a low-res image of the same location 
-at time `T'`, generate a high-res image of the location at time `T'`.
-
-#### fMoW-Sentinel -> fMoW-RGB Super-resolution
-```shell
-./launch_scripts/launch_fmow_md_superres.sh launch_accelerate_configs/single_gpu_accelerate_config.yaml
+download [https://drive.google.com/drive/folders/1B2x7eQDgecTL0oh3LSIBDGj0fTxs6Ips?usp=drive_link]
+unzip lama-models.zip
 ```
-The task is: given a multi-spectral low-res image of a location (from [fMoW-Sentinel](https://github.com/sustainlab-group/SatMAE?tab=readme-ov-file#fmow-sentinel-dataset)), 
-generate the corresponding high-res RGB image (from [fMoW-RGB](https://github.com/fMoW/dataset)).
 
-#### fMoW Temporal Generation
-```shell
-./launch_scripts/launch_fmow_temporal_md_controlnet.sh launch_accelerate_configs/single_gpu_accelerate_config.yaml
+**2. Prepare images and masks**
+
+Download test images:
+
 ```
-This model conditions on a temporal sequence of input RGB images from fMoW-RGB to generate a single new image at a desired timestamp `T`.
-
-#### xBD Temporal Inpainting
-```shell
-./launch_scripts/launch_xbd_md_controlnet.sh launch_accelerate_configs/single_gpu_accelerate_config.yaml
+unzip LaMa_test_images.zip
 ```
-The task is: given a past (or future) image of a location affected by a natural disaster, generate the future (or past) image
-after (or before) the natural disaster struck. We use the [xBD](https://github.com/DIUx-xView/xView2_baseline?tab=readme-ov-file#data-downloads) dataset.
+<details>
+ <summary>OR prepare your data:</summary>
+1) Create masks named as `[images_name]_maskXXX[image_suffix]`, put images and masks in the same folder. 
 
-## Datasets
-The datasets we use are in [`webdataset`](https://github.com/webdataset/webdataset) format.
-You will need to prepare your datasets in this format to be able to train using the given code,
-or you can modify the data-loading to use your own custom dataset formats.
+- You can use the [script](https://github.com/advimman/lama/blob/main/bin/gen_mask_dataset.py) for random masks generation. 
+- Check the format of the files:
+    ```    
+    image1_mask001.png
+    image1.png
+    image2_mask001.png
+    image2.png
+    ```
 
-We have provided example shardlists in `datasets`. The training code will read the relevant file,
-and load data using the data paths in this file. The advantage of using `webdataset` is that your data
-does not need to only be on disk, and you can stream data from buckets in AWS S3 as well.  
+2) Specify `image_suffix`, e.g. `.png` or `.jpg` or `_input.jpg` in `configs/prediction/default.yaml`.
 
-We also provide a small sample `webdataset` in `datasets/texas_housing_val_10sample.tar`, sourced from 
-the validation set of the Texas housing super-resolution task.
+</details>
 
 
-#### fMoW
-Example format for each entry in the fMoW webdataset `.tar` file.
+**3. Predict**
+
+On the host machine:
+
+    python3 bin/predict.py model.path=$(pwd)/big-lama indir=$(pwd)/LaMa_test_images outdir=$(pwd)/output
+
+**OR** in the docker
+  
+The following command will pull the docker image from Docker Hub and execute the prediction script
 ```
-__key__: fmow-{cls_name}-{instance_id}  # eg: fmow-airport-airport_0
-output.cls: label_idx  # eg: 32
-input.npy: (h,w,c) numpy array
-metadata.json: {'img_filename': ..., 'gsd': ..., 'cloud_cover': ..., 'timestamp': ..., 'country_code': ...}
+bash docker/2_predict.sh $(pwd)/big-lama $(pwd)/LaMa_test_images $(pwd)/output device=cpu
 ```
-Note that fMoW also requires metadata `.csv` files, which have been provided in `datasets/fmow-train-meta.csv` 
-and `datasets/fmow-val-meta.csv`.
+Docker cuda:
+```
+bash docker/2_predict_with_gpu.sh $(pwd)/big-lama $(pwd)/LaMa_test_images $(pwd)/output
+```
+
+**4. Predict with Refinement**
+
+On the host machine:
+
+    python3 bin/predict.py refine=True model.path=$(pwd)/big-lama indir=$(pwd)/LaMa_test_images outdir=$(pwd)/output
+
+# Train and Eval
+
+Make sure you run:
+
+```
+cd lama
+export TORCH_HOME=$(pwd) && export PYTHONPATH=$(pwd)
+```
+
+Then download models for _perceptual loss_:
+
+    mkdir -p ade20k/ade20k-resnet50dilated-ppm_deepsup/
+    wget -P ade20k/ade20k-resnet50dilated-ppm_deepsup/ http://sceneparsing.csail.mit.edu/model/pytorch/ade20k-resnet50dilated-ppm_deepsup/encoder_epoch_20.pth
+
+
+## Places
+
+⚠️ NB: FID/SSIM/LPIPS metric values for Places that we see in LaMa paper are computed on 30000 images that we produce in evaluation section below.
+For more details on evaluation data check [[Section 3. Dataset splits in Supplementary](https://ashukha.com/projects/lama_21/lama_supmat_2021.pdf#subsection.3.1)]  ⚠️
+
+On the host machine:
+
+    # Download data from http://places2.csail.mit.edu/download.html
+    # Places365-Standard: Train(105GB)/Test(19GB)/Val(2.1GB) from High-resolution images section
+    wget http://data.csail.mit.edu/places/places365/train_large_places365standard.tar
+    wget http://data.csail.mit.edu/places/places365/val_large.tar
+    wget http://data.csail.mit.edu/places/places365/test_large.tar
+
+    # Unpack train/test/val data and create .yaml config for it
+    bash fetch_data/places_standard_train_prepare.sh
+    bash fetch_data/places_standard_test_val_prepare.sh
+    
+    # Sample images for test and viz at the end of epoch
+    bash fetch_data/places_standard_test_val_sample.sh
+    bash fetch_data/places_standard_test_val_gen_masks.sh
+
+    # Run training
+    python3 bin/train.py -cn lama-fourier location=places_standard
+
+    # To evaluate trained model and report metrics as in our paper
+    # we need to sample previously unseen 30k images and generate masks for them
+    bash fetch_data/places_standard_evaluation_prepare_data.sh
+    
+    # Infer model on thick/thin/medium masks in 256 and 512 and run evaluation 
+    # like this:
+    python3 bin/predict.py \
+    model.path=$(pwd)/experiments/<user>_<date:time>_lama-fourier_/ \
+    indir=$(pwd)/places_standard_dataset/evaluation/random_thick_512/ \
+    outdir=$(pwd)/inference/random_thick_512 model.checkpoint=last.ckpt
+
+    python3 bin/evaluate_predicts.py \
+    $(pwd)/configs/eval2_gpu.yaml \
+    $(pwd)/places_standard_dataset/evaluation/random_thick_512/ \
+    $(pwd)/inference/random_thick_512 \
+    $(pwd)/inference/random_thick_512_metrics.csv
+
+    
+    
+Docker: TODO
+    
+## CelebA
+On the host machine:
+
+    # Make shure you are in lama folder
+    cd lama
+    export TORCH_HOME=$(pwd) && export PYTHONPATH=$(pwd)
+
+    # Download CelebA-HQ dataset
+    # Download data256x256.zip from https://drive.google.com/drive/folders/11Vz0fqHS2rXDb5pprgTjpD7S2BAJhi1P
+    
+    # unzip & split into train/test/visualization & create config for it
+    bash fetch_data/celebahq_dataset_prepare.sh
+
+    # generate masks for test and visual_test at the end of epoch
+    bash fetch_data/celebahq_gen_masks.sh
+
+    # Run training
+    python3 bin/train.py -cn lama-fourier-celeba data.batch_size=10
+
+    # Infer model on thick/thin/medium masks in 256 and run evaluation 
+    # like this:
+    python3 bin/predict.py \
+    model.path=$(pwd)/experiments/<user>_<date:time>_lama-fourier-celeba_/ \
+    indir=$(pwd)/celeba-hq-dataset/visual_test_256/random_thick_256/ \
+    outdir=$(pwd)/inference/celeba_random_thick_256 model.checkpoint=last.ckpt
+    
+    
+Docker: TODO
+
+## Places Challenge 
+
+On the host machine:
+
+    # This script downloads multiple .tar files in parallel and unpacks them
+    # Places365-Challenge: Train(476GB) from High-resolution images (to train Big-Lama) 
+    bash places_challenge_train_download.sh
+    
+    TODO: prepare
+    TODO: train 
+    TODO: eval
+      
+Docker: TODO
+
+## Create your data
+
+Please check bash scripts for data preparation and mask generation from CelebaHQ section,
+if you stuck at one of the following steps.
+
+
+On the host machine:
+
+    # Make shure you are in lama folder
+    cd lama
+    export TORCH_HOME=$(pwd) && export PYTHONPATH=$(pwd)
+
+    # You need to prepare following image folders:
+    $ ls my_dataset
+    train
+    val_source # 2000 or more images
+    visual_test_source # 100 or more images
+    eval_source # 2000 or more images
+
+    # LaMa generates random masks for the train data on the flight,
+    # but needs fixed masks for test and visual_test for consistency of evaluation.
+
+    # Suppose, we want to evaluate and pick best models 
+    # on 512x512 val dataset  with thick/thin/medium masks 
+    # And your images have .jpg extention:
+
+    python3 bin/gen_mask_dataset.py \
+    $(pwd)/configs/data_gen/random_<size>_512.yaml \ # thick, thin, medium
+    my_dataset/val_source/ \
+    my_dataset/val/random_<size>_512.yaml \# thick, thin, medium
+    --ext jpg
+
+    # So the mask generator will: 
+    # 1. resize and crop val images and save them as .png
+    # 2. generate masks
+    
+    ls my_dataset/val/random_medium_512/
+    image1_crop000_mask000.png
+    image1_crop000.png
+    image2_crop000_mask000.png
+    image2_crop000.png
+    ...
+
+    # Generate thick, thin, medium masks for visual_test folder:
+
+    python3 bin/gen_mask_dataset.py \
+    $(pwd)/configs/data_gen/random_<size>_512.yaml \  #thick, thin, medium
+    my_dataset/visual_test_source/ \
+    my_dataset/visual_test/random_<size>_512/ \ #thick, thin, medium
+    --ext jpg
+    
+
+    ls my_dataset/visual_test/random_thick_512/
+    image1_crop000_mask000.png
+    image1_crop000.png
+    image2_crop000_mask000.png
+    image2_crop000.png
+    ...
+
+    # Same process for eval_source image folder:
+    
+    python3 bin/gen_mask_dataset.py \
+    $(pwd)/configs/data_gen/random_<size>_512.yaml \  #thick, thin, medium
+    my_dataset/eval_source/ \
+    my_dataset/eval/random_<size>_512/ \ #thick, thin, medium
+    --ext jpg
+    
+
+
+    # Generate location config file which locate these folders:
+    
+    touch my_dataset.yaml
+    echo "data_root_dir: $(pwd)/my_dataset/" >> my_dataset.yaml
+    echo "out_root_dir: $(pwd)/experiments/" >> my_dataset.yaml
+    echo "tb_dir: $(pwd)/tb_logs/" >> my_dataset.yaml
+    mv my_dataset.yaml ${PWD}/configs/training/location/
+
+
+    # Check data config for consistency with my_dataset folder structure:
+    $ cat ${PWD}/configs/training/data/abl-04-256-mh-dist
+    ...
+    train:
+      indir: ${location.data_root_dir}/train
+      ...
+    val:
+      indir: ${location.data_root_dir}/val
+      img_suffix: .png
+    visual_test:
+      indir: ${location.data_root_dir}/visual_test
+      img_suffix: .png
+
+
+    # Run training
+    python3 bin/train.py -cn lama-fourier location=my_dataset data.batch_size=10
+
+    # Evaluation: LaMa training procedure picks best few models according to 
+    # scores on my_dataset/val/ 
+
+    # To evaluate one of your best models (i.e. at epoch=32) 
+    # on previously unseen my_dataset/eval do the following 
+    # for thin, thick and medium:
+
+    # infer:
+    python3 bin/predict.py \
+    model.path=$(pwd)/experiments/<user>_<date:time>_lama-fourier_/ \
+    indir=$(pwd)/my_dataset/eval/random_<size>_512/ \
+    outdir=$(pwd)/inference/my_dataset/random_<size>_512 \
+    model.checkpoint=epoch32.ckpt
+
+    # metrics calculation:
+    python3 bin/evaluate_predicts.py \
+    $(pwd)/configs/eval2_gpu.yaml \
+    $(pwd)/my_dataset/eval/random_<size>_512/ \
+    $(pwd)/inference/my_dataset/random_<size>_512 \
+    $(pwd)/inference/my_dataset/random_<size>_512_metrics.csv
+
+    
+**OR** in the docker:
+
+    TODO: train
+    TODO: eval
+    
+# Hints
+
+### Generate different kinds of masks
+The following command will execute a script that generates random masks.
+
+    bash docker/1_generate_masks_from_raw_images.sh \
+        configs/data_gen/random_medium_512.yaml \
+        /directory_with_input_images \
+        /directory_where_to_store_images_and_masks \
+        --ext png
+
+The test data generation command stores images in the format,
+which is suitable for [prediction](#prediction).
+
+The table below describes which configs we used to generate different test sets from the paper.
+Note that we *do not fix a random seed*, so the results will be slightly different each time.
+
+|        | Places 512x512         | CelebA 256x256         |
+|--------|------------------------|------------------------|
+| Narrow | random_thin_512.yaml   | random_thin_256.yaml   |
+| Medium | random_medium_512.yaml | random_medium_256.yaml |
+| Wide   | random_thick_512.yaml  | random_thick_256.yaml  |
+
+Feel free to change the config path (argument #1) to any other config in `configs/data_gen` 
+or adjust config files themselves.
+
+### Override parameters in configs
+Also you can override parameters in config like this:
+
+    python3 bin/train.py -cn <config> data.batch_size=10 run_title=my-title
+
+Where .yaml file extension is omitted
+
+### Models options 
+Config names for models from paper (substitude into the training command): 
+
+    * big-lama
+    * big-lama-regular
+    * lama-fourier
+    * lama-regular
+    * lama_small_train_masks
+
+Which are seated in configs/training/folder
+
+### Links
+- All the data (models, test images, etc.) https://disk.yandex.ru/d/AmdeG-bIjmvSug
+- Test images from the paper https://disk.yandex.ru/d/xKQJZeVRk5vLlQ
+- The pre-trained models https://disk.yandex.ru/d/EgqaSnLohjuzAg
+- The models for perceptual loss https://disk.yandex.ru/d/ncVmQlmT_kTemQ
+- Our training logs are available at https://disk.yandex.ru/d/9Bt1wNSDS4jDkQ
+
+
+### Training time & resources
+
+TODO
+
+## Acknowledgments
+
+* Segmentation code and models if form [CSAILVision](https://github.com/CSAILVision/semantic-segmentation-pytorch).
+* LPIPS metric is from [richzhang](https://github.com/richzhang/PerceptualSimilarity)
+* SSIM is from [Po-Hsun-Su](https://github.com/Po-Hsun-Su/pytorch-ssim)
+* FID is from [mseitzer](https://github.com/mseitzer/pytorch-fid)
 
 ## Citation
-If you find our project helpful, please cite our paper:
+If you found this code helpful, please consider citing: 
 ```
-@inproceedings{
-khanna2024diffusionsat,
-title={DiffusionSat: A Generative Foundation Model for Satellite Imagery},
-author={Samar Khanna and Patrick Liu and Linqi Zhou and Chenlin Meng and Robin Rombach and Marshall Burke and David B. Lobell and Stefano Ermon},
-booktitle={The Twelfth International Conference on Learning Representations},
-year={2024},
-url={https://openreview.net/forum?id=I5webNFDgQ}
+@article{suvorov2021resolution,
+  title={Resolution-robust Large Mask Inpainting with Fourier Convolutions},
+  author={Suvorov, Roman and Logacheva, Elizaveta and Mashikhin, Anton and Remizova, Anastasia and Ashukha, Arsenii and Silvestrov, Aleksei and Kong, Naejin and Goka, Harshith and Park, Kiwoong and Lempitsky, Victor},
+  journal={arXiv preprint arXiv:2109.07161},
+  year={2021}
 }
 ```

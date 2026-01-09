@@ -215,3 +215,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 finetune_sd21_sn-satlas-fmow_snr5_md7norm_bs64
+
+big-lama
