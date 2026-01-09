@@ -5,7 +5,6 @@ import numpy as np
 import s3fs
 import torch
 import torch.nn.functional as F
-import tqdm
 from diffusers import AutoPipelineForInpainting
 from PIL import Image
 from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
@@ -180,44 +179,44 @@ class InpaintCresi:
         mask,
         prompt,
     ):
-        result = image.copy()
+        # result = image.copy()
 
-        tiles = tile_image_and_mask(image, mask, tile_size=self.tile_size)
+        # tiles = tile_image_and_mask(image, mask, tile_size=self.tile_size)
 
-        jobs = []
-        for i, tile in enumerate(tiles):
-            x, y, img_tile, mask_tile = tile
-            if has_cloud(mask_tile):
-                img_tile.save(f"img_tile_{i}.png")
-                mask_tile.save(f"mask_tile_{i}.png")
-                jobs.append((x, y, img_tile, mask_tile))
+        # jobs = []
+        # for i, tile in enumerate(tiles):
+        #     x, y, img_tile, mask_tile = tile
+        #     if has_cloud(mask_tile):
+        #         img_tile.save(f"img_tile_{i}.png")
+        #         mask_tile.save(f"mask_tile_{i}.png")
+        #         jobs.append((x, y, img_tile, mask_tile))
 
-        print(f"Total tiles to inpaint: {len(jobs)}")
+        # print(f"Total tiles to inpaint: {len(jobs)}")
 
-        if len(jobs) == 0:
-            return result
+        # if len(jobs) == 0:
+        #     return result
 
-        pbar = tqdm.tqdm(
-            total=len(jobs),
-            desc="Inpainting tiles",
-            unit="tile",
-        )
+        # pbar = tqdm.tqdm(
+        #     total=len(jobs),
+        #     desc="Inpainting tiles",
+        #     unit="tile",
+        # )
 
-        for job in jobs:
-            print(f"Inpainting tile at position ({job[0]}, {job[1]})")
-            x, y, image, mask = job
+        # for job in jobs:
+        # print(f"Inpainting tile at position ({job[0]}, {job[1]})")
+        # x, y, image, mask = job
 
-            output = self.inpaint_pipe(
-                prompt=prompt,
-                image=image,
-                mask_image=mask,
-                num_inference_steps=self.num_inference_steps,
-                guidance_scale=self.guidance_scale,
-            ).images[0]
+        result = self.inpaint_pipe(
+            prompt=prompt,
+            image=image,
+            mask_image=mask,
+            num_inference_steps=self.num_inference_steps,
+            guidance_scale=self.guidance_scale,
+        ).images[0]
 
-            result.paste(output, (x, y))
-            pbar.update(1)
-        pbar.close()
+        # result.paste(output, (x, y))
+        # pbar.update(1)
+        # pbar.close()
         return result
 
     def inpaint(
@@ -227,17 +226,17 @@ class InpaintCresi:
         prompt: str,
         output_path: str,
     ):
-        padded_image, original_size = pad_to_multiple(image, self.tile_size, fill=0)
-        padded_mask, _ = pad_to_multiple(mask, self.tile_size, fill=0)
+        # padded_image, original_size = pad_to_multiple(image, self.tile_size, fill=0)
+        # padded_mask, _ = pad_to_multiple(mask, self.tile_size, fill=0)
 
-        padded_result = self.inpaint_full_image(
-            image=padded_image,
-            mask=padded_mask,
+        result = self.inpaint_full_image(
+            image=image,
+            mask=mask,
             prompt=prompt,
         )
 
-        w, h = original_size
-        result = padded_result.crop((0, 0, w, h))
+        # w, h = image.size
+        # result = padded_result.crop((0, 0, w, h))
 
         result.save(output_path)
         print(f"Inpainted image saved to {output_path}")
@@ -265,7 +264,7 @@ def main(args: argparse.Namespace):
     mask.save("mask.png", mode="L")
     print("Original image and mask saved.")
 
-    prompt = "clear the masked area, remove trees, show the road, satellite imagery, realistic"
+    prompt = "road, satellite imagery, realistic"
     output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
     output = processor.cresi(output)
 
