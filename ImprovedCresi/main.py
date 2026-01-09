@@ -101,7 +101,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "restor/tcd-segformer-mit-b2"
-        self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
+        self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
         self.username = username
         self.tile_size = tile_size
 
