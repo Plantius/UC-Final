@@ -121,7 +121,6 @@ class InpaintCresi:
                 self.inpaint_model_name,
                 cache_dir=f"/local/{self.username}/.cache/",
                 torch_dtype=torch.float16,
-                variant="fp16",
             ).to(self.device)
 
             self.inpaint_pipe.enable_model_cpu_offload()
