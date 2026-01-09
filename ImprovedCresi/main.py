@@ -94,7 +94,7 @@ class InpaintCresi:
         self.tile_size = tile_size
 
         self.fs = fs
-        self.device = "cuda:5" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
 
         self.num_inference_steps = num_inference_steps
@@ -123,7 +123,7 @@ class InpaintCresi:
                 torch_dtype=torch.float16,
             ).to(self.device)
 
-            # self.inpaint_pipe.enable_model_cpu_offload()
+            self.inpaint_pipe.enable_model_cpu_offload()
             self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
