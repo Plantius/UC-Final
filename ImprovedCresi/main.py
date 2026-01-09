@@ -122,7 +122,7 @@ class InpaintCresi:
                 torch_dtype=torch.float16,
             ).to(self.device)
 
-            # self.inpaint_pipe.enable_model_cpu_offload()
+            self.inpaint_pipe.enable_model_cpu_offload()
             # self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
