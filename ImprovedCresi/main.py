@@ -174,7 +174,12 @@ class InpaintCresi:
             guidance_scale=self.guidance_scale,
         ).images[0]
 
-    def inpaint_full_image(self, image, mask, prompt, negative_prompt):
+    def inpaint_full_image(
+        self,
+        image,
+        mask,
+        prompt,
+    ):
         result = image.copy()
 
         tiles = tile_image_and_mask(image, mask, tile_size=self.tile_size)
@@ -204,7 +209,6 @@ class InpaintCresi:
 
             output = self.inpaint_pipe(
                 prompt=prompt,
-                negative_prompt=negative_prompt,
                 image=image,
                 mask_image=mask,
                 num_inference_steps=self.num_inference_steps,
@@ -221,7 +225,6 @@ class InpaintCresi:
         image: Image.Image,
         mask: Image.Image,
         prompt: str,
-        negative_prompt: str,
         output_path: str,
     ):
         padded_image, original_size = pad_to_multiple(image, self.tile_size, fill=0)
@@ -231,7 +234,6 @@ class InpaintCresi:
             image=padded_image,
             mask=padded_mask,
             prompt=prompt,
-            negative_prompt=negative_prompt,
         )
 
         w, h = original_size
@@ -264,12 +266,7 @@ def main(args: argparse.Namespace):
     print("Original image and mask saved.")
 
     prompt = "clear the masked area, remove trees, show the road, satellite imagery, realistic"
-    negative_prompt = (
-        "blurry, low quality, distorted, deformed, trees, vegetation, buildings, clouds"
-    )
-    output = processor.inpaint(
-        img, mask, prompt, negative_prompt, "inpainted_image.png"
-    )
+    output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
     output = processor.cresi(output)
 
 
