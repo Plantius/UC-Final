@@ -203,7 +203,7 @@ class InpaintCresi:
             unit="tile",
         )
 
-        for i, job in enumerate(jobs):
+        for i, job in enumerate(jobs, start=1):
             print(f"Inpainting tile {i}/{len(jobs)}")
             x, y, image, mask = job
 
