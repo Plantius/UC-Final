@@ -194,10 +194,14 @@ class InpaintCresi:
             if has_cloud(mask_tile):
                 jobs.append((x, y, img_tile, mask_tile))
 
+        print(f"Total tiles to inpaint: {len(jobs)}")
+
         if len(jobs) == 0:
             return result
 
-        pbar = tqdm.tqdm(total=len(jobs), desc="Inpainting tiles", unit="tile")
+        pbar = tqdm.tqdm(
+            total=np.ceil(len(jobs) / batch_size), desc="Inpainting tiles", unit="tile"
+        )
 
         for i in range(0, len(jobs), batch_size):
             batch = jobs[i : i + batch_size]
