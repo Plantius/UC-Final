@@ -203,8 +203,8 @@ class InpaintCresi:
             unit="tile",
         )
 
-        for job in jobs:
-            print(f"Inpainting tile at position ({job[0]}, {job[1]})")
+        for i, job in enumerate(jobs):
+            print(f"Inpainting tile {i}/{len(jobs)}")
             x, y, image, mask = job
 
             output = self.inpaint_pipe(
@@ -265,7 +265,7 @@ def main(args: argparse.Namespace):
     mask.save("mask.png", mode="L")
     print("Original image and mask saved.")
 
-    prompt = "clear the masked area, remove trees, show the road, satellite imagery, realistic"
+    prompt = "road, satellite imagery, realistic"
     output = processor.inpaint(img, mask, prompt, "inpainted_image.png")
     output = processor.cresi(output)
 
