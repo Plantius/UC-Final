@@ -265,7 +265,7 @@ def main(args: argparse.Namespace):
         args.num_inference_steps,
         args.tile_size,
     )
-    prompt = "remove obstructions such that the obfuscated road becomes visible, satellite imagery, high detail"
+    prompt = "remove obstructions and shadows such that the obfuscated road becomes visible, satellite imagery, high detail"
 
     if args.image_local:
         img = processor.load_image(args.image_local)
