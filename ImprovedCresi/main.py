@@ -101,7 +101,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "restor/tcd-segformer-mit-b2"
-        self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
+        self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
         self.username = username
         self.tile_size = tile_size
 
@@ -133,6 +133,7 @@ class InpaintCresi:
                 self.inpaint_model_name,
                 cache_dir=f"/local/{self.username}/.cache/",
                 torch_dtype=torch.float16,
+                variant="fp16",
             ).to(self.device)
 
             self.inpaint_pipe.enable_model_cpu_offload()
@@ -264,7 +265,7 @@ def main(args: argparse.Namespace):
         args.num_inference_steps,
         args.tile_size,
     )
-    prompt = "road, satellite imagery, realistic"
+    prompt = "remove obstructions such that the obfuscated road becomes visible, satellite imagery, high detail"
 
     if args.image_local:
         img = processor.load_image(args.image_local)
