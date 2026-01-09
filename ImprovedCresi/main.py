@@ -279,7 +279,7 @@ def main(args: argparse.Namespace):
             mask.save(f"mask_{idx}.png", mode="L")
             print(f"Original image and mask for {image_path} saved.")
 
-            output_path = f"inpainted_image_{idx}.png"
+            output_path = args.output_path + f"inpainted_image_{idx}.png"
             output = processor.inpaint(img, mask, prompt, output_path)
             output = processor.cresi(output)
         return
