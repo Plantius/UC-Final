@@ -199,31 +199,24 @@ class InpaintCresi:
             return result
 
         pbar = tqdm.tqdm(
-            total=int(np.ceil(len(jobs) / self.batch_size)),
+            total=len(jobs),
             desc="Inpainting tiles",
-            unit="batch",
+            unit="tile",
         )
 
-        for i in range(0, len(jobs), self.batch_size):
-            batch = jobs[i : i + self.batch_size]
+        for job in jobs:
+            x, y, image, mask = job
 
-            images = [j[2] for j in batch]
-
-            masks = [j[3] for j in batch]
-            prompts = [prompt] * len(images)
-
-            outputs = self.inpaint_pipe(
-                prompt=prompts,
-                image=images,
-                mask_image=masks,
+            output = self.inpaint_pipe(
+                prompt=prompt,
+                image=image,
+                mask_image=mask,
                 num_inference_steps=self.num_inference_steps,
                 guidance_scale=self.guidance_scale,
-            ).images
+            ).images[0]
 
-            for (x, y, _, _), out_img in zip(batch, outputs):
-                result.paste(out_img, (x, y))
-                pbar.update(1)
-
+            result.paste(output, (x, y))
+            pbar.update(1)
         pbar.close()
         return result
 
