@@ -209,6 +209,8 @@ class InpaintCresi:
         result = self.inpaint_pipe(
             prompt=prompt,
             image=image,
+            width=image.size[0],
+            height=image.size[1],
             mask_image=mask,
             num_inference_steps=self.num_inference_steps,
             guidance_scale=self.guidance_scale,
