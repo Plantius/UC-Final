@@ -94,7 +94,7 @@ class InpaintCresi:
         self.tile_size = tile_size
 
         self.fs = fs
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda:5" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
 
         self.num_inference_steps = num_inference_steps
