@@ -117,7 +117,7 @@ class InpaintCresi:
             )
 
             self.lama = load_checkpoint(
-                "big-lama",
+                "/local/s3322637/data/big-lama",
                 map_location=self.device,
                 strict=False,
             ).eval()
