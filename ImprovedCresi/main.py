@@ -38,6 +38,12 @@ def argparser():
         help="Path to the local input image for inpainting",
     )
     parser.add_argument(
+        "images-local",
+        nargs="*",
+        type=str,
+        help="Paths to multiple local input images for inpainting",
+    )
+    parser.add_argument(
         "--output-path",
         type=str,
         default="inpainted_image.png",
@@ -258,11 +264,24 @@ def main(args: argparse.Namespace):
         args.num_inference_steps,
         args.tile_size,
     )
+    prompt = "road, satellite imagery, realistic"
 
     if args.image_local:
         img = processor.load_image(args.image_local)
     elif args.image_s3:
         img = processor.load_s3_image(args.image_s3)
+    elif args.images_local:
+        for idx, image_path in enumerate(args.images_local):
+            img = processor.load_image(image_path)
+            mask = processor.detect_cloud_mask(img)
+            img.save(f"original_{idx}.png")
+            mask.save(f"mask_{idx}.png", mode="L")
+            print(f"Original image and mask for {image_path} saved.")
+
+            output_path = f"inpainted_image_{idx}.png"
+            output = processor.inpaint(img, mask, prompt, output_path)
+            output = processor.cresi(output)
+        return
     else:
         raise ValueError("Either --image-local or --image-s3 must be provided.")
     mask = processor.detect_cloud_mask(img)
@@ -270,7 +289,6 @@ def main(args: argparse.Namespace):
     mask.save("mask.png", mode="L")
     print("Original image and mask saved.")
 
-    prompt = "road, satellite imagery, realistic"
     output = processor.inpaint(img, mask, prompt, args.output_path)
     output = processor.cresi(output)
 
