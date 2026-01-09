@@ -4,6 +4,7 @@ import numpy as np
 import s3fs
 import torch
 import torch.nn.functional as F
+import tqdm
 from PIL import Image
 from src.diffusers.pipelines import StableDiffusionInpaintPipeline
 from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
@@ -182,18 +183,40 @@ class InpaintCresi:
             guidance_scale=self.guidance_scale,
         ).images[0]
 
-    def inpaint_full_image(self, image, mask, prompt):
+    def inpaint_full_image(self, image, mask, prompt, batch_size=4):
         result = image.copy()
 
         tiles = tile_image_and_mask(image, mask)
 
+        jobs = []
         for x, y, img_tile, mask_tile in tiles:
-            if not has_cloud(mask_tile):
-                continue
+            if has_cloud(mask_tile):
+                jobs.append((x, y, img_tile, mask_tile))
 
-            inpainted_tile = self.inpaint_tile(img_tile, mask_tile, prompt)
-            result.paste(inpainted_tile, (x, y))
+        if len(jobs) == 0:
+            return result
 
+        pbar = tqdm.tqdm(total=len(jobs), desc="Inpainting tiles", unit="tile")
+
+        for i in range(0, len(jobs), batch_size):
+            batch = jobs[i : i + batch_size]
+
+            images = [j[2] for j in batch]
+            masks = [j[3] for j in batch]
+
+            outputs = self.inpaint_pipe(
+                prompt=prompt,
+                image=images,
+                mask_image=masks,
+                num_inference_steps=self.num_inference_steps,
+                guidance_scale=self.guidance_scale,
+            ).images
+
+            for (x, y, _, _), out_img in zip(batch, outputs):
+                result.paste(out_img, (x, y))
+                pbar.update(1)
+
+        pbar.close()
         return result
 
     def inpaint(
