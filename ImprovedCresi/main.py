@@ -12,18 +12,14 @@ from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
 
 def argparser():
     parser = argparse.ArgumentParser(description="InpaintCresi Command Line Interface")
+
     parser.add_argument(
-        "--img-size-x",
+        "--batch-size",
         type=int,
-        default=512,
-        help="Width of the output image",
+        default=4,
+        help="Batch size for processing image tiles",
     )
-    parser.add_argument(
-        "--img-size-y",
-        type=int,
-        default=512,
-        help="Height of the output image",
-    )
+
     parser.add_argument(
         "--num-inference-steps",
         type=int,
@@ -200,7 +196,9 @@ class InpaintCresi:
             return result
 
         pbar = tqdm.tqdm(
-            total=np.ceil(len(jobs) / batch_size), desc="Inpainting tiles", unit="tile"
+            total=int(np.ceil(len(jobs) / batch_size)),
+            desc="Inpainting tiles",
+            unit="batch",
         )
 
         for i in range(0, len(jobs), batch_size):
