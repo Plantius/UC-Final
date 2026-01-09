@@ -88,7 +88,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
-        self.inpaint_model_name = "diffusers/stable-diffusion-xl-1.0-inpainting-0.1"
+        self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
         self.username = username
         self.batch_size = batch_size
 
@@ -230,8 +230,8 @@ class InpaintCresi:
     def inpaint(
         self, image: Image.Image, mask: Image.Image, prompt: str, output_path: str
     ):
-        padded_image, original_size = pad_to_multiple(image, 1024, fill=0)
-        padded_mask, _ = pad_to_multiple(mask, 1024, fill=0)
+        padded_image, original_size = pad_to_multiple(image, 512, fill=0)
+        padded_mask, _ = pad_to_multiple(mask, 512, fill=0)
 
         padded_result = self.inpaint_full_image(
             image=padded_image,
