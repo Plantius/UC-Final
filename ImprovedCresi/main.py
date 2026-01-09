@@ -5,8 +5,8 @@ import s3fs
 import torch
 import torch.nn.functional as F
 import tqdm
+from diffusers import AutoPipelineForInpainting
 from PIL import Image
-from src.diffusers.pipelines import StableDiffusionInpaintPipeline
 from transformers import AutoImageProcessor, AutoModelForSemanticSegmentation
 
 
@@ -88,7 +88,7 @@ class InpaintCresi:
         username: str = "s3322637",
     ) -> None:
         self.mask_model_name = "nvidia/segformer-b0-finetuned-ade-512-512"
-        self.inpaint_model_name = "stable-diffusion-v1-5/stable-diffusion-inpainting"
+        self.inpaint_model_name = "kandinsky-community/kandinsky-2-2-decoder-inpaint"
         self.username = username
         self.batch_size = batch_size
 
@@ -116,10 +116,13 @@ class InpaintCresi:
                 .eval()
             )
 
-            self.inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
+            self.inpaint_pipe = AutoPipelineForInpainting.from_pretrained(
                 self.inpaint_model_name,
+                torch_dtype=torch.float16,
                 cache_dir=f"/local/{self.username}/.cache/",
             ).to(self.device)
+
+            self.inpaint_pipe.enable_model_cpu_offload()
             self.inpaint_pipe.set_progress_bar_config(disable=True)
 
             print("Models loaded successfully.")
