@@ -11,27 +11,28 @@ Note:
 """
 
 from __future__ import print_function
-import os
-import utm
-import shapely.wkt
-import shapely.ops
-from shapely.geometry import mapping, Point, LineString
-import fiona
-import networkx as nx
-import osmnx as ox
-from osgeo import gdal, ogr, osr
+
 import argparse
 import json
-import pandas as pd
-import numpy as np
+import os
 import time
-import matplotlib.pyplot as plt
-import logging
 from multiprocessing.pool import Pool
+
+import fiona
+import networkx as nx
+import numpy as np
+import osmnx as ox
+import pandas as pd
+import shapely.ops
+import shapely.wkt
+import utm
+from osgeo import gdal, ogr, osr
+from shapely.geometry import LineString, Point, mapping
+
+from configs.config import Config
 
 # import cv2
 from utils import make_logger, rdp
-from configs.config import Config
 
 logger1 = None
 
@@ -917,7 +918,13 @@ def wkt_to_G(params):
     
         # get geom wkt (for printing/viewing purposes)
         for i,(u,v,attr_dict) in enumerate(G_projected.edges(data=True)):
-            attr_dict['geometry_wkt'] = attr_dict['geometry'].wkt
+            if 'geometry' in attr_dict:
+                attr_dict['geometry_wkt'] = attr_dict['geometry'].wkt
+            elif 'geometry_latlon_wkt' in attr_dict:
+                attr_dict['geometry_wkt'] = attr_dict['geometry_latlon_wkt']
+            else:
+                # last resort: create a simple LineString from start/end
+                attr_dict['geometry_wkt'] = f"LINESTRING ({attr_dict['start_loc_pix'][0]} {attr_dict['start_loc_pix'][1]}, {attr_dict['end_loc_pix'][0]} {attr_dict['end_loc_pix'][1]})"
 
         if verbose:
             print("post projection...")
@@ -967,7 +974,8 @@ def wkt_to_G(params):
         
         #Gout = G0
         # reprojecting graph screws up lat lon, so convert to string?
-        Gout = ox.project_graph(G0)
+        # Gout = ox.project_graph(G0)
+        Gout = G0
         
         # print("Gout")
         # node = list(Gout.nodes())[-1]
