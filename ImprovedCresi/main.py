@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import cv2
 import numpy as np
@@ -280,7 +281,10 @@ def main(args: argparse.Namespace):
             print(f"Original image and mask for {image_path} saved.")
 
             output_path = args.output_path + f"inpainted_image_{idx}.png"
+            start_time = time.time()
             output = processor.inpaint(img, mask, prompt, output_path)
+            end_time = time.time()
+            print(f"Inpainting for {image_path} completed in {end_time - start_time:.2f} seconds.")
             output = processor.cresi(output)
         return
     else:
